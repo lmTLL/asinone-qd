@@ -123,7 +123,7 @@
             </el-form-item>
             <el-form-item label="Code:" prop="code">
               <el-input v-model="form.code" style="width: 400px;" placeholder="请输入code"/>
-              <el-checkbox v-model="checked">code works on all colors and all sizes</el-checkbox>
+              <el-checkbox v-model="checked" @change="codeWorkInit">code works on all colors and all sizes</el-checkbox>
               <el-input v-if="!checked" v-model="form.codeWork" style="width: 400px;" placeholder="code works on black&red"/>
             </el-form-item>
             <el-form-item label="Discount:" prop="discount">
@@ -223,7 +223,7 @@ export default {
       active: 0,
       timer: '',
       entity: { remark: '', price: 0 },
-      form: { projectName: '', site: '', dealSite: '', productName: '', link: '', dealPrice: '', originalPrice: '', code: '', discount: '', startDate: '', endDate: '', accountOrder: '', accountImg: '', codeWork: '' },
+      form: { projectName: '', site: '', dealSite: '', productName: '', link: '', dealPrice: '', originalPrice: '', code: '', discount: '', startDate: '', endDate: '', accountOrder: '', accountImg: '', codeWork: 'code works on all colors and all sizes' },
       waitForm: { paymentRemarks: '', paymentPrice: 0, paymentType: '' },
       rules: {
         // asin: [{ required: true, trigger: 'blur', message: 'asin不能为空' }/*, { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }*/],
@@ -283,6 +283,14 @@ export default {
     handleSuccess(response, file, fileList) {
       this.form.accountImg = response.url
       this.form.accountOrder = response.msg
+    },
+    codeWorkInit() {
+      console.log('11')
+      if (this.checked) {
+        this.form.codeWork = 'code works on all colors and all sizes'
+      } else {
+        this.form.codeWork = ''
+      }
     },
     doAdd() {
       /* if (this.form.accountImg !== '' && this.form.accountOrder !== '') {*/

@@ -27,16 +27,18 @@
       </router-link>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel">
-        <div class="card-panel-icon-wrapper icon-money">
-          <div class="card-panel-text" style="font-size: 25px">首页无差评自助下单</div>
+      <router-link to="/nested/offSitAdd">
+        <div class="card-panel">
+          <div class="card-panel-icon-wrapper icon-money">
+            <div class="card-panel-text" style="font-size: 25px">站外自助下单</div>
 
+          </div>
+          <div class="card-panel-description">
+            <!--<svg-icon icon-class="visits" class-name="card-panel-icon" />-->
+            <!--<count-to :start-val="0" :end-val="count.recentVisits" :duration="3200" class="card-panel-num"/>-->
+          </div>
         </div>
-        <div class="card-panel-description">
-          <!--<svg-icon icon-class="visits" class-name="card-panel-icon" />-->
-          <!--<count-to :start-val="0" :end-val="count.recentVisits" :duration="3200" class="card-panel-num"/>-->
-        </div>
-      </div>
+      </router-link>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel">

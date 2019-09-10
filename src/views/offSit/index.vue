@@ -29,7 +29,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="projectName" label="服务项目"/>
-      <el-table-column v-if="!checkPermission(['INVISIBLE'])" prop="zwChannelName" label="渠道"/>
+      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" prop="zwChannelName" label="渠道"/>
       <el-table-column prop="invitation" label="所属销售"/>
       <el-table-column prop="customerNickname" label="客户昵称"/>
       <el-table-column prop="site" label="站点"/>
@@ -65,8 +65,8 @@
           <span>{{ parseTime(scope.row.accountTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column v-if="!checkPermission(['INVISIBLE'])" :show-overflow-tooltip="true" prop="accountOrder" label="支付单号"/>
-      <el-table-column v-if="!checkPermission(['INVISIBLE'])" ref="table" prop="accountImg" label="付款截图">
+      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" :show-overflow-tooltip="true" prop="accountOrder" label="支付单号"/>
+      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" ref="table" prop="accountImg" label="付款截图">
         <template slot-scope="scope">
           <a v-if="scope.row.accountImg!==''" :href="scope.row.accountImg" style="color: #42b983" target="_blank"><img :src="scope.row.accountImg" alt="" class="el-avatar"></a>
         </template>
@@ -80,7 +80,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="remark" label="备注"/>
-      <el-table-column v-if="checkPermission(['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_EDIT','ZWSALEORDER_DELETE'])" label="操作" width="160px" align="center">
+      <el-table-column label="操作" width="160px" align="center">
         <template slot-scope="scope">
           <el-tooltip content="点击复制详细信息" class="item" effect="dark" placement="top">
             <el-button type="text" @click="copyText(scope.row)">复制</el-button>
@@ -189,7 +189,7 @@ export default {
         'Link : ' + row.link + ' \n' +
         'Deal Price : ' + row.dealPrice + ' \n' +
         'Original Price : ' + row.originalPrice + ' \n' +
-        'Code : ' + row.code + '  \n' +
+        'Code : ' + row.code + '(' + row.codeWork + ')' + '  \n' +
         'Discount : ' + row.discount + '  \n' +
         'Start Date : ' + row.startDate + ' \n' +
         'End Date : ' + row.endDate
