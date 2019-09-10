@@ -278,7 +278,7 @@
           @click="doInitChannel">换渠道</el-button>
       </div>
 
-      <div v-permission="['ADMIN']" style="display: inline-block;">
+      <div v-permission="['ADMIN1']" style="display: inline-block;">
         <el-button
           :disabled="$parent.data.length === 0 || $parent.$refs.table.selection.length === 0"
           class="filter-item"

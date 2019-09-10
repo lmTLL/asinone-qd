@@ -3,7 +3,7 @@
     <eHeader :query="query" :dicts="dicts"/>
     <!--表格渲染-->
     <el-table v-loading="loading" ref="table" :data="data" :height="tableHeight" size="medium" style="width: 100%;" fit="false">
-      <el-table-column type="selection" width="40"/>
+      <el-table-column type="selection" width="45"/>
       <el-table-column ref="table" prop="saleNumber" label="订单编号" width="158px" fixed>
         <template slot-scope="scope">
           <i v-if="scope.row.newOrder==='0'" style="color: red">new&#8194;</i>{{ scope.row.saleNumber }}
