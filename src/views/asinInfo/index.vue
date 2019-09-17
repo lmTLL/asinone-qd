@@ -51,34 +51,113 @@
       <div class="block">
         <div class="delate-step">
           <div style="width: 93%; height: 300px; padding-bottom: 40px; display: table;margin-top: 10px;">
-
+            <!--1.0版本-->
+            <!--<el-timeline >-->
+            <!--<el-timeline-item-->
+            <!--v-for="(activity, index) in followOthersOptions"-->
+            <!--v-show="listenState.titleListen === 'Yes' || listenState.priceListen === 'Yes' || listenState.fivepointListen === 'Yes' "-->
+            <!--:key="index"-->
+            <!--:size="large"-->
+            <!--:timestamp="parseTime(activity.startDate)"-->
+            <!--color="#409EFF"-->
+            <!--placement="top"-->
+            <!--&gt;-->
+            <!--<div v-show="listenState.titleListen === 'Yes'" >-->
+            <!--<div style="position: absolute" class="kong"> 标题：</div>-->
+            <!--<div style="margin-left: 55px">{{ activity.title }}</div>-->
+            <!--</div>-->
+            <!--<div v-show="listenState.priceListen === 'Yes'" >-->
+            <!--<div style="position: absolute" class="kong"> 价格：</div>-->
+            <!--<div style="margin-left: 55px">{{ activity.price }}</div>-->
+            <!--</div>-->
+            <!--<div v-show="listenState.fivepointListen === 'Yes'">-->
+            <!--<div style="position: absolute" class="kong"> 五点：</div>-->
+            <!--<div v-for="five in splits(activity.fivePoints)" style="margin-left: 55px">{{ five }}</div>-->
+            <!--</div>-->
+            <!--</el-timeline-item>-->
+            <!--</el-timeline>-->
+            <!--2.0版本-->
             <el-timeline >
               <el-timeline-item
-                v-for="(activity, index) in followOthersOptions"
-                v-show="listenState.titleListen === 'Yes' || listenState.priceListen === 'Yes' || listenState.fivepointListen === 'Yes' "
-                :key="index"
+                v-show="(listenState.titleListen === 'Yes' || listenState.priceListen === 'Yes' || listenState.fivepointListen === 'Yes') && newfollowOthers.id !== 0 "
                 :size="large"
-                :timestamp="parseTime(activity.startDate)"
+                :timestamp="parseTime(newfollowOthers.startDate)"
                 color="#409EFF"
                 placement="top"
               >
                 <div v-show="listenState.titleListen === 'Yes'" >
-                  <div style="position: absolute" class="kong"> 标题：</div>
-                  <div style="margin-left: 55px">{{ activity.title }}</div>
+                  <b>标题详情：</b>
+                  <div v-if="oldfollowOthers.id === 0">
+                    <div style="position: absolute" class="kong"> 现标题：</div><div style="margin-left: 70px">{{ newfollowOthers.title }}</div>
+                    <div style="margin-left: 70px"><br></div>
+                  </div>
+                  <div v-else>
+                    <div v-if="newfollowOthers.title != oldfollowOthers.title">
+                      <div style="position: absolute" class="kong"> 现标题：</div><div style="margin-left: 70px">{{ newfollowOthers.title }}</div>
+                      <div style="position: absolute" class="kong"> 原标题：</div><div style="margin-left: 70px">{{ oldfollowOthers.title }}</div>
+                      <div style="margin-left: 70px"><br></div>
+                    </div>
+                    <div v-else>
+                      <div style="margin-left: 70px">无变化</div><div style="margin-left: 70px"><br></div>
+                    </div>
+                  </div>
                 </div>
                 <div v-show="listenState.priceListen === 'Yes'" >
-                  <div style="position: absolute" class="kong"> 价格：</div>
-                  <div style="margin-left: 55px">{{ activity.price }}</div>
+                  <b>价格详情：</b>
+                  <div v-if="oldfollowOthers.id === 0">
+                    <div style="position: absolute" class="kong"> 现价格：</div><div style="margin-left: 70px">{{ newfollowOthers.price }}</div>
+                    <div style="margin-left: 70px"><br></div>
+                  </div>
+                  <div v-else>
+                    <div v-if="newfollowOthers.price != oldfollowOthers.price">
+                      <div style="position: absolute" class="kong"> 现价格：</div><div style="margin-left: 70px">{{ newfollowOthers.price }}</div>
+                      <div style="position: absolute" class="kong"> 原价格：</div><div style="margin-left: 70px">{{ oldfollowOthers.price }}</div>
+                      <div style="margin-left: 70px"><br></div>
+                    </div>
+                    <div v-else>
+                      <div style="margin-left: 70px">无变化</div><div style="margin-left: 70px"><br></div>
+                    </div>
+                  </div>
                 </div>
                 <div v-show="listenState.fivepointListen === 'Yes'">
-                  <div style="position: absolute" class="kong"> 五点：</div>
-                  <div v-for="five in splits(activity.fivePoints)" style="margin-left: 55px">{{ five }}</div>
+                  <b>五点详情：</b>
+                  <div v-if="oldfollowOthers.id === 0">
+                    <div style="position: absolute" class="kong"> 现五点：</div>
+                    <div v-for="(five,index) in splits(newfollowOthers.fivePoints)" :key="index" style="margin-left: 70px">{{ five }}</div>
+                    <div style="margin-left: 70px"><br></div>
+                  </div>
+                  <div v-else>
+                    <div v-if="newfollowOthers.fivePoints != oldfollowOthers.fivePoints">
+                      <div style="padding-left: 20px"><strong>发生改变的点：</strong></div>
+                      <div style="position: absolute" class="kong"> 改变前：</div>
+                      <div
+                        v-for="(five,indexs) in splits(oldfollowOthers.fivePoints)"
+                        :key="indexs"
+                        style="margin-left: 70px">
+                        <div v-show="oldIndex[indexs] == 0">{{ five }}</div>
+                      </div>
+                      <div style="margin-left: 70px"><br></div>
+                      <div style="position: absolute" class="kong"> 改变后：</div>
+                      <div
+                        v-for="(five,index) in splits(newfollowOthers.fivePoints)"
+                        :key="index"
+                        style="margin-left: 70px"
+                      >
+                        <div v-show="newIndex[index] == 0">{{ five }}</div>
+                      </div>
+                      <div style="margin-left: 70px"><br></div>
+                    </div>
+                    <div v-else>
+                      <div style="margin-left: 70px">无变化</div>
+                      <div style="margin-left: 70px"><br></div>
+                    </div>
+                  </div>
                 </div>
               </el-timeline-item>
             </el-timeline>
             <div v-show="listenState.titleListen !== 'Yes' && listenState.priceListen !== 'Yes' && listenState.fivepointListen !== 'Yes'" style="text-align:center;margin-top: 120px">请添加相关监控</div>
             <div
-              v-show="followOthersOptions.length === 0 && ( listenState.titleListen === 'Yes' || listenState.priceListen === 'Yes' || listenState.fivepointListen === 'Yes' )"
+              v-show="newfollowOthers.id === 0 && ( listenState.titleListen === 'Yes' || listenState.priceListen === 'Yes' || listenState.fivepointListen === 'Yes' )"
               style="text-align:center;margin-top: 120px"
             >暂无数据</div>
           </div>
@@ -105,7 +184,7 @@
       </el-table-column>
       <el-table-column v-if="checkPermission(['ADMIN'])" label="头像" width="100">
         <template scope="scope">
-          <img :src="scope.row.headImgurl" width="40" height="40" class="head_pic"/>
+          <img :src="scope.row.headImgurl" width="40" height="40" class="head_pic">
         </template>
       </el-table-column>
       <el-table-column v-if="checkPermission(['ADMIN'])" prop="nickName" label="用户" width="100px"/>
@@ -162,6 +241,10 @@ export default {
       OthersdialogTableVisible: false,
       followDetailsOptions: [],
       followOthersOptions: [],
+      newfollowOthers: {},
+      oldfollowOthers: {},
+      newIndex: [],
+      oldIndex: [],
       delLoading: false, sup_this: this,
       listenState: {}
     }
@@ -208,7 +291,7 @@ export default {
         console.log(err.response.data.message)
       })
     },
-    initAsin(){
+    initAsin() {
 
     },
     isListen(data) {
@@ -231,42 +314,48 @@ export default {
       })
     },
     initFollowOthers(data) {
-      this.followOthersOptions = []
       var befordist = []
-      var afterdist = []
       followOthersAll(data.asin).then(row => {
         for (let i = 0; i < row.length; i++) {
           befordist.push(row[i])
-          afterdist.push(row[i])
         }
-        for (var i = 0; i < befordist.length; i++) {
-          console.log(befordist.length)
-          for (var j = i + 1; j < befordist.length; j++) {
-            var x = []
-            var coun = 0
-            if (data.titleListen === 'Yes') {
-              x.push(befordist[j].title === befordist[i].title)
-            }
-            if (data.priceListen === 'Yes') {
-              x.push(befordist[j].price === befordist[i].price)
-            }
-            if (data.fivepointListen === 'Yes') {
-              x.push(befordist[j].fivePoints === befordist[i].fivePoints)
-            }
-            for (var zz = 0; zz < x.length; zz++) {
-              if (x[zz]) {
-                coun++
+        this.newfollowOthers = {
+          id: 0,
+          asin: '',
+          price: '',
+          title: '',
+          fivePoints: '',
+          startDate: ''
+        }
+        this.oldfollowOthers = {
+          id: 0,
+          asin: '',
+          price: '',
+          title: '',
+          fivePoints: '',
+          startDate: ''
+        }
+        befordist = befordist.reverse()
+        if (befordist.length > 0) {
+          this.newfollowOthers = befordist[0]
+          if (befordist.length > 1) {
+            this.oldfollowOthers = befordist[1]
+            this.newIndex = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            this.oldIndex = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            var newFive = this.newfollowOthers.fivePoints.split('@!@')
+            var oldFive = this.oldfollowOthers.fivePoints.split('@!@')
+            for (var i = 0; i < newFive.length; i++) {
+              for (var j = 0; j < oldFive.length; j++) {
+                if (newFive[i] === oldFive[j]) {
+                  this.newIndex[i] = 1
+                  this.oldIndex[j] = 1
+                }
               }
-            }
-            if (coun === x.length) {
-              befordist.splice(j, 1)
-              j--
             }
           }
         }
-        this.followOthersOptions = befordist
-        this.followOthersOptions = this.followOthersOptions.reverse()
-        console.log(this.followOthersOptions)
+        console.log(this.newfollowOthers)
+        console.log(this.oldfollowOthers)
         this.OthersdialogTableVisible = true
       }).catch(err => {
         console.log(err.response.data.message)
@@ -277,9 +366,9 @@ export default {
 </script>
 
 <style scoped>
-.kong{
-  padding-left: 20px
-}
+  .kong{
+    padding-left: 20px
+  }
   .kongkong{
     padding-left: 76px
   }

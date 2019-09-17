@@ -19,7 +19,7 @@
               v-model="remark"
               :disabled="true"
               placeholder="请输入内容"/>
-            <img src="http://39.98.168.25:8082/statics/2019/07/11/7ee51b7e97831c9abd2ddbc15370cf0b.png" style="width: 200px;height: 300px;margin-top: 10px;margin-left: 70px"><br>
+            <img src="https://eladmin.asinone.vip/statics/2019/09/11/7ee51b7e97831c9abd2ddbc15370cf0b7ee51b7e97831c9abd2ddbc15370cf0b.png" style="width: 200px;height: 300px;margin-top: 10px;margin-left: 70px"><br>
             <span style="margin-left: 120px">打开<span style="color: red">支付宝</span>扫一扫</span><br><br><br>
             <el-upload
               :headers="headers"
@@ -79,6 +79,7 @@
         <eForm ref="form" :is-add="true"/>
       </div>-->
       <router-link to="/nested/offSitAdd">
+      <!--<router-link to="@/views/offSit/add/index">-->
         <div style="display: inline-block;margin: 0px 2px;">
           <el-button
             v-permission="['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_CREATE']"

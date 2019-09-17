@@ -38,3 +38,18 @@ export function feedback(data) {
     data
   })
 }
+
+export function getMessage(msgKey) {
+  return request({
+    url: 'api/messageAll/' + msgKey,
+    method: 'get'
+  })
+}
+
+export function addMessage(data) {
+  return request({
+    url: 'api/message',
+    method: 'post',
+    data
+  })
+}

@@ -27,19 +27,19 @@
       :before-close="handleClose"
       title="支付款项"
       width="576px">
-      <div style="width: 530px;height: 570px">
+      <div style="width: 530px;height: 500px">
         <el-input
           v-model="AccountPrice"
           :disabled="true"
           placeholder="请输入内容">
         </el-input>
-        <p style="font-size: 20px">付款时请备注：<span style="color:red;">{{ form.paymentRemark }}</span></p>
-        <img src="http://39.98.168.25:8082/statics/2019/07/11/7ee51b7e97831c9abd2ddbc15370cf0b.png" style="width: 200px;height: 300px;margin-left: 160px;margin-top: 10px"><br>
+        <!--<p style="font-size: 20px">付款时请备注：<span style="color:red;">{{ form.paymentRemark }}</span></p>-->
+        <img src="https://eladmin.asinone.vip/statics/2019/09/11/7ee51b7e97831c9abd2ddbc15370cf0b7ee51b7e97831c9abd2ddbc15370cf0b.png" style="width: 200px;height: 300px;margin-left: 160px;margin-top: 10px"><br>
         <span style="margin-left: 207px">打开<span style="color: red">支付宝</span>扫一扫</span><br><br><br>
         <span style="margin-left: 100px">如果此刻需要向财务请款，可先保存订单。待贵司财务付款后，<br>&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;再到列表中选中该订单上传付款截图。</span><br><br>
         <span slot="footer" class="dialog-footer" style="margin-left: 80px;">
           <el-button type="primary" @click="doAdd">保存订单，稍后上传截图</el-button>
-          <el-button type="primary" @click="doPayment">已付款（填写了校验码）</el-button>
+          <el-button type="primary" @click="next">上传付款截图</el-button>
         </span>
       </div>
     </el-dialog>
@@ -116,10 +116,10 @@
               <el-input v-model="form.link" style="width: 400px;" placeholder="请输入Link"></el-input>
             </el-form-item>
             <el-form-item label="Deal Price:" prop="dealPrice">
-              <el-input v-model="form.dealPrice" style="width: 400px;" placeholder="请输入Deal Price"><template v-if="form.site === 'US'" slot="append">美元</template><template v-if="form.site === 'DE' || form.site === 'FR' || form.site === 'IT' || form.site === 'ES'" slot="append">欧元</template><template v-if="form.site === 'JP'" slot="append">日元</template><template v-if="form.site === 'CA'" slot="append">加元</template><template v-if="form.site === 'UK'" slot="append">英镑</template></el-input>
+              <el-input v-model="form.dealPrice" style="width: 400px;" placeholder="请输入Deal Price"><template v-if="form.site === 'US'|| form.site === 'AU'" slot="append">美元</template><template v-if="form.site === 'DE' || form.site === 'FR' || form.site === 'IT' || form.site === 'ES'" slot="append">欧元</template><template v-if="form.site === 'JP'" slot="append">日元</template><template v-if="form.site === 'CA'" slot="append">加元</template><template v-if="form.site === 'UK'" slot="append">英镑</template></el-input>
             </el-form-item>
             <el-form-item label="Original Price:" prop="originalPrice">
-              <el-input v-model="form.originalPrice" style="width: 400px;" placeholder="请输入Original Price"><template v-if="form.site === 'US'" slot="append">美元</template><template v-if="form.site === 'DE' || form.site === 'FR' || form.site === 'IT' || form.site === 'ES'" slot="append">欧元</template><template v-if="form.site === 'JP'" slot="append">日元</template><template v-if="form.site === 'CA'" slot="append">加元</template><template v-if="form.site === 'UK'" slot="append">英镑</template></el-input>
+              <el-input v-model="form.originalPrice" style="width: 400px;" placeholder="请输入Original Price"><template v-if="form.site === 'US'|| form.site === 'AU'" slot="append">美元</template><template v-if="form.site === 'DE' || form.site === 'FR' || form.site === 'IT' || form.site === 'ES'" slot="append">欧元</template><template v-if="form.site === 'JP'" slot="append">日元</template><template v-if="form.site === 'CA'" slot="append">加元</template><template v-if="form.site === 'UK'" slot="append">英镑</template></el-input>
             </el-form-item>
             <el-form-item label="Code:" prop="code">
               <el-input v-model="form.code" style="width: 400px;" placeholder="请输入code"/>
@@ -176,9 +176,9 @@
       </div>
     </div>
     <div style="position:relative;">
-      <div style="border: black 0px solid;text-align: center;margin-top: 30px">
-        <el-button v-show="buttonShow" style="" @click="back">上一步</el-button>
-        <el-button v-show="buttonShow1" style="margin-left: 40px" @click="Account">完成</el-button>
+      <div style="border: black 0px solid;text-align: center;margin-top: 20px">
+        <el-button v-show="buttonShow" @click="backs">上一步</el-button>
+        <el-button v-show="buttonShow1" style="margin-left: 130px;width: 400px" type="success" @click="Account">完成</el-button>
         <el-button v-show="submitButton" style="" @click="doAdd">提交</el-button>
         <!--<el-button v-show="buttonShow" style="" @click="doAdd">提交</el-button>-->
       </div>
@@ -428,8 +428,16 @@ export default {
         })
         .catch(_ => {})
     },
+    backs() {
+      this.show1 = false
+      this.show = true
+      this.buttonShow = false
+      this.buttonShow1 = true
+      this.submitButton = false
+    },
     next() {
       this.show1 = true
+      this.dialogVisible1 = false
       this.dialogVisible3 = false
       this.buttonShow1 = false
       this.show = false
@@ -446,7 +454,7 @@ export default {
         for (let i = 0; i < this.dealOptions.length; i++) {
           if (this.dealOptions[i].dealSite === this.form.dealSite) {
             this.AccountPrice = '应付: ' + this.dealOptions[i].price + '  RMB'
-            this.dialogVisible = true
+            this.dialogVisible1 = true
             this.form.remark = '￥' + this.dealOptions[i].price
             this.waitForm.paymentPrice = this.dealOptions[i].price
             this.waitForm.paymentType = '0'
@@ -456,10 +464,6 @@ export default {
         console.log(err.response.data.message)
       })
     }
-  },
-  back() {
-    this.show1 = false
-    this.show = true
   }
 }
 </script>

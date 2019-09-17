@@ -146,7 +146,7 @@ export default {
     justify-content: center;
     align-items: center;
     height: 100%;
-    background-image:url(	http://39.98.168.25:8082/statics/2019/07/22/eca12de3c9f1103f8ee9d04b182ccd48.jpg);
+    background-image:url(	https://eladmin.asinone.vip/statics/2019/09/11/eca12de3c9f1103f8ee9d04b182ccd48eca12de3c9f1103f8ee9d04b182ccd48.jpg);
     background-size: cover;
   }
   .title {

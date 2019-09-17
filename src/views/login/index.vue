@@ -9,7 +9,7 @@
       <div style="position:relative;">
         <div style="border: black 0px solid;text-align: center;margin-top: 30px">
           <p style="font-size: 20px">若没有对应客户经理，请加以下微信号索要邀请码</p>
-          <img src="http://39.98.168.25:8082/statics/2019/06/19/19d273334ba82748514c26be2543a607.png" class="qrcode lightBorder" width="200px" height="200px" style="margin-top: 0px">
+          <img src="https://eladmin.asinone.vip/statics/2019/09/11/19d273334ba82748514c26be2543a60719d273334ba82748514c26be2543a607.png" class="qrcode lightBorder" width="200px" height="200px" style="margin-top: 0px">
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -241,7 +241,7 @@ export default {
     justify-content: center;
     align-items: center;
     height: 100%;
-    background-image:url(	http://39.98.168.25:8082/statics/2019/07/22/eca12de3c9f1103f8ee9d04b182ccd48.jpg);
+    background-image:url(	https://eladmin.asinone.vip/statics/2019/09/11/eca12de3c9f1103f8ee9d04b182ccd48eca12de3c9f1103f8ee9d04b182ccd48.jpg);
     background-size: cover;
   }
   .title {

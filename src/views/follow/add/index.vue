@@ -27,19 +27,19 @@
       :before-close="handleClose"
       title="支付款项"
       width="576px">
-      <div style="width: 530px;height: 570px">
+      <div style="width: 530px;height: 500px">
         <el-input
           v-model="AccountPrice"
           :disabled="true"
           placeholder="请输入内容">
         </el-input>
-        <p style="font-size: 20px">付款时请备注：<span style="color:red;">{{ form.paymentRemark }}</span></p>
-        <img src="http://39.98.168.25:8082/statics/2019/07/11/7ee51b7e97831c9abd2ddbc15370cf0b.png" style="width: 200px;height: 300px;margin-left: 160px;margin-top: 10px"><br>
+        <!--<p style="font-size: 20px">付款时请备注：<span style="color:red;">{{ form.paymentRemark }}</span></p>-->
+        <img src="https://eladmin.asinone.vip/statics/2019/09/11/7ee51b7e97831c9abd2ddbc15370cf0b7ee51b7e97831c9abd2ddbc15370cf0b.png" style="width: 200px;height: 300px;margin-left: 160px;margin-top: 10px"><br>
         <span style="margin-left: 207px">打开<span style="color: red">支付宝</span>扫一扫</span><br><br><br>
         <span style="margin-left: 100px">如果此刻需要向财务请款，可先保存订单。待贵司财务付款后，<br>&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;&#8195;再到列表中选中该订单上传付款截图。</span><br><br>
         <span slot="footer" class="dialog-footer" style="margin-left: 80px;">
           <el-button type="primary" @click="doAdd">保存订单，稍后上传截图</el-button>
-          <el-button type="primary" @click="doPayment">已付款（填写了校验码）</el-button>
+          <el-button type="primary" @click="next">上传付款截图</el-button>
         </span>
       </div>
     </el-dialog>
@@ -50,7 +50,7 @@
       :before-close="handleClose"
       width="576px">
       <div style="width: 500px;height: 500px;text-align: center">
-        <img src="http://39.98.168.25:8082/statics/2019/07/19/380eb864af9b49b781859634f5718289.png" style="width: 200px;height: 200px;margin-top: 10px"><br>
+        <img src="https://eladmin.asinone.vip/statics/2019/09/11/380eb864af9b49b781859634f5718289380eb864af9b49b781859634f5718289.png" style="width: 200px;height: 200px;margin-top: 10px"><br>
         <p style="font-size: 30px">验证通过，付款成功</p>
         <el-button type="primary" style="width: 200px;margin-top: 50px" @click="doClose">关闭</el-button>
         <!--<span slot="footer" class="dialog-footer" style="margin-left: 80px;">
@@ -451,6 +451,7 @@ export default {
       if (this.active === 3) {
         if (this.AccountPrice !== '') {
           this.dialogVisible = false
+          this.dialogVisible1 = false
           this.dialogVisible3 = false
           this.buttonShow = true
           this.show1 = false
@@ -472,18 +473,18 @@ export default {
 
     },
     Account(id) {
-      getSalePaymentCode().then(res => {
+      /* getSalePaymentCode().then(res => {
         this.form.paymentRemark = res
         this.waitForm.paymentRemarks = res
       }).catch(err => {
         console.log(err.response.data.message)
-      })
+      })*/
       for (let i = 0; i < this.channelOptions.length; i++) {
         if (this.channelOptions[i].id === id) {
           if (this.channelOptions[i].productCost === '0') {
             this.form.channelId = id
             this.AccountPrice = '应付：￥' + this.channelOptions[i].price
-            this.dialogVisible = true
+            this.dialogVisible1 = true
             this.form.remark = '￥' + this.channelOptions[i].price
             this.waitForm.paymentPrice = this.channelOptions[i].price
             this.waitForm.paymentType = '0'
@@ -508,7 +509,7 @@ export default {
             const productCost = this.form.followPrice
             const all = price + (productCost * this.rate)
             this.AccountPrice = '应付：' + price + '+' + productCost + '*' + this.rate + '=' + all
-            this.dialogVisible = true
+            this.dialogVisible1 = true
             this.form.remark = '￥' + all
             this.waitForm.paymentPrice = all
             this.waitForm.paymentType = '0'

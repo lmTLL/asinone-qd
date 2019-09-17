@@ -5,7 +5,7 @@
       :append-to-body="true"
       :visible.sync="centerDialogVisible"
       title="效果图"
-      width="40%"
+      width="500"
       center>
       <div class="demo-image__lazy" style="width: 100%">
         <el-col style="width: 100%">
@@ -20,6 +20,61 @@
         <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>-->
       </span>
     </el-dialog>
+    <el-dialog
+      :append-to-body="true"
+      :visible.sync="centerDialogVisible1"
+      title="消息列表"
+      width="700px">
+      <div style="width: 100%">
+        <el-table
+          :data="tableData"
+          max-height="500"
+          style="width: 100%;border: 0px salmon solid">
+          <el-table-column :show-overflow-tooltip="true" prop="msgTime" label="发送时间" width="160">
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.msgTime) }}</span>
+            </template>
+          </el-table-column>
+          <!--<el-table-column
+            prop="msgTime"
+            label="日期"
+            width="150"/>-->
+          <el-table-column
+            :show-overflow-tooltip="true"
+            prop="msgName"
+            label="姓名"
+            width="100"/>
+          <el-table-column
+            prop="msgValue"
+            label="消息"/>
+        </el-table>
+        <el-input
+          :autosize="{ minRows: 4, maxRows: 4}"
+          v-model="queryForm.msgValue"
+          type="textarea"
+          placeholder="请输入内容"/>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <!--<el-button type="info" @click="centerDialogVisible1=false">关闭</el-button>-->
+        <el-button
+          class="filter-item"
+          size="mini"
+          type="info"
+          icon="el-icon-circle-close"
+          @click="centerDialogVisible1=false">关闭
+        </el-button>
+        <el-button
+          class="filter-item"
+          size="mini"
+          type="primary"
+          icon="el-icon-s-promotion"
+          @click="sendMsg">发送
+        </el-button>
+        <!--<el-button type="primary" @click="sendMsg">发送</el-button>-->
+        <!--<el-button @click="centerDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>-->
+      </span>
+    </el-dialog>
     <!--表格渲染-->
     <el-table v-loading="loading" ref="table" :data="data" :height="tableHeight" size="medium" style="width: 100%;" fit="false">
       <el-table-column type="selection" width="45"/>
@@ -29,6 +84,11 @@
         </template>
       </el-table-column>
       <el-table-column prop="projectName" label="服务项目"/>
+      <el-table-column prop="link" label="沟通" width="110px">
+        <template slot-scope="scope">
+          <el-link target="_blank" title="点击沟通" type="success" @click="messageInit(scope.row.zwSaleNumber)">点击沟通</el-link>
+        </template>
+      </el-table-column>
       <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" prop="zwChannelName" label="渠道"/>
       <el-table-column prop="invitation" label="所属销售"/>
       <el-table-column prop="customerNickname" label="客户昵称"/>
@@ -40,15 +100,15 @@
         </template>
       </el-table-column>
       <el-table-column :show-overflow-tooltip="true" prop="productName" label="productName" width="115px"/>
-      <el-table-column :show-overflow-tooltip="true" prop="dealSite" label="Deal站"/>
+      <el-table-column prop="dealSite" label="Deal站" width="200px"/>
       <el-table-column :show-overflow-tooltip="true" prop="dealPrice" label="Deal price" width="100px"/>
       <el-table-column :show-overflow-tooltip="true" prop="originalPrice" label="Original price" width="115px"/>
-      <el-table-column :show-overflow-tooltip="true" prop="code" label="code"/>
-      <el-table-column :show-overflow-tooltip="true" prop="codeWork" label="codeWork" width="90px"/>
+      <el-table-column prop="code" label="code" width="260px"/>
+      <el-table-column prop="codeWork" label="codeWork" width="260px"/>
       <el-table-column :show-overflow-tooltip="true" prop="discount" label="Discount"/>
       <el-table-column prop="startDate" label="开始时间" width="100px"/>
       <el-table-column prop="endDate" label="结束时间" width="100px"/>
-      <el-table-column :show-overflow-tooltip="true" prop="postingEffect" label="发帖效果"/>
+      <el-table-column prop="postingEffect" label="发帖效果"/>
       <el-table-column prop="postingImg" label="发帖截图" width="110px">
         <template slot-scope="scope">
           <el-link target="_blank" title="点击展示" type="success" @click="open(scope.row.postingImg)">点击展示</el-link>
@@ -110,7 +170,15 @@
       @current-change="pageChange"/>
   </div>
 </template>
-
+<style>
+  .el-table::before {
+    left: 0;
+    bottom: 1px;
+    top: 0;
+    width: 100%;
+    height: 0px;
+  }
+</style>
 <script>
 import checkPermission from '@/utils/permission'
 import initData from '@/mixins/initData'
@@ -119,16 +187,22 @@ import { parseTime } from '@/utils/index'
 import eHeader from './module/header'
 import edit from './module/edit'
 import initDict from '@/mixins/initDict'
+import { getMessage } from '@/api/zwSaleOrder'
+import { addMessage } from '@/api/zwSaleOrder'
 export default {
   components: { eHeader, edit },
   mixins: [initData, initDict],
   data() {
     return {
+      show3: true,
+      centerDialogVisible1: false,
       centerDialogVisible: false,
       tableHeight: 0,
       delLoading: false,
       sup_this: this,
-      urls: []
+      queryForm: { msgKey: '', msgValue: '' },
+      urls: [],
+      tableData: []
     }
   },
   mounted: function() {
@@ -146,6 +220,14 @@ export default {
   methods: {
     parseTime,
     checkPermission,
+    sendMsg() {
+      addMessage(this.queryForm).then(row => {
+        this.queryForm.msgValue = ''
+        this.messageInit(this.queryForm.msgKey)
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
+    },
     open(postingImg) {
       this.urls = []
       const imgs = postingImg.split(',')
@@ -164,6 +246,19 @@ export default {
       const value = query.value
       if (type && value) { this.params[type] = value }
       return true
+    },
+    messageInit(zwSaleNumber) {
+      this.queryForm.msgKey = zwSaleNumber
+      this.queryForm.msgValue = ''
+      this.tableData = []
+      getMessage(zwSaleNumber).then(row => {
+        for (let i = 0; i < row.length; i++) {
+          this.tableData.push(row[i])
+        }
+        this.centerDialogVisible1 = true
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
     },
     subDelete(id) {
       this.delLoading = true
@@ -216,5 +311,16 @@ export default {
 </script>
 
 <style scoped>
-
+  .transition-box {
+    margin-bottom: 10px;
+    width: 200px;
+    height: 100px;
+    border-radius: 4px;
+    background-color: #409EFF;
+    text-align: center;
+    color: #fff;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    margin-right: 20px;
+  }
 </style>
