@@ -89,7 +89,7 @@
       </div>
       <div style="border: black 0px solid;margin: 0 auto;width: 100%;">
         <div style="border: black 0px solid;margin: 0 auto;width: 530px">
-          <el-form :model="form" :rules="rules" style="height: 680px;margin: 0 auto" label-width="130px">
+          <el-form :model="form" :rules="rules" :style="formStyle" label-width="130px">
             <el-form-item label="站点:" prop="site">
               <el-select v-model="form.site" placeholder="请选择" style="width: 400px" @change="initDeals(form.site)" >
                 <el-option
@@ -139,6 +139,8 @@
                   value-format="yyyy-MM-dd HH:mm:ss"
                   placeholder="选择日期时间">
                 </el-date-picker>
+                <p style="height: 30px;margin-top: -10px">code在美国时间凌晨4点或4点前生效的， 今晚发帖。 </p>
+                <p style="height: 10px;margin-top: -15px">4点以后生效的明天安排发帖</p>
               </div>
             </el-form-item>
             <el-form-item label="End Date:" prop="endDate">
@@ -206,6 +208,7 @@ export default {
       submitButton: false,
       buttonShow1: true,
       show3: false,
+      formStyle: 'height: 680px;margin: 0 auto',
       rate: 0,
       dealOptions: [],
       AccountPrice: '',
@@ -285,10 +288,11 @@ export default {
       this.form.accountOrder = response.msg
     },
     codeWorkInit() {
-      console.log('11')
       if (this.checked) {
+        this.formStyle = 'height: 680px;margin: 0 auto'
         this.form.codeWork = 'code works on all colors and all sizes'
       } else {
+        this.formStyle = 'height: 720px;margin: 0 auto'
         this.form.codeWork = ''
       }
     },

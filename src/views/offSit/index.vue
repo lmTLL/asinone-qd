@@ -80,13 +80,13 @@
       <el-table-column type="selection" width="45"/>
       <el-table-column ref="table" prop="zwSaleNumber" label="订单编号" width="150px" fixed>
         <template slot-scope="scope">
-          <i v-if="scope.row.newOrder==='0'" style="color: red">new&#8194;</i>{{ scope.row.zwSaleNumber }}
+          <i v-if="scope.row.financePayment==='0'&&checkPermission(['ADMIN','ZWSALEORDER_SIGNPAYMENT'])" style="color: red">未付&#8194;</i><i v-if="scope.row.newOrder==='0'&&!checkPermission(['NO_NEW_ORDER'])" style="color: red">new&#8194;</i>{{ scope.row.zwSaleNumber }}
         </template>
       </el-table-column>
       <el-table-column prop="projectName" label="服务项目"/>
       <el-table-column prop="link" label="沟通" width="110px">
         <template slot-scope="scope">
-          <el-link target="_blank" title="点击沟通" type="success" @click="messageInit(scope.row.zwSaleNumber)">点击沟通</el-link>
+          <el-link type="success" target="_blank" title="点击沟通" @click="messageInit(scope.row.zwSaleNumber)">点击沟通</el-link>
         </template>
       </el-table-column>
       <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" prop="zwChannelName" label="渠道"/>
@@ -94,28 +94,46 @@
       <el-table-column prop="customerNickname" label="客户昵称"/>
       <el-table-column prop="site" label="站点"/>
       <!--<el-table-column prop="link" label="asin"/>-->
-      <el-table-column prop="link" label="asin" width="110px">
+      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" prop="link" label="asin" width="130px">
         <template slot-scope="scope">
           <el-link :href="scope.row.link" target="_blank" title="点击跳转" type="success">{{ scope.row.link.substring(scope.row.link.indexOf('dp/')+3,scope.row.link.indexOf('/ref')) }}</el-link>
         </template>
       </el-table-column>
-      <el-table-column :show-overflow-tooltip="true" prop="productName" label="productName" width="115px"/>
+      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" :show-overflow-tooltip="true" prop="productName" label="productName" width="115px"/>
       <el-table-column prop="dealSite" label="Deal站" width="200px"/>
-      <el-table-column :show-overflow-tooltip="true" prop="dealPrice" label="Deal price" width="100px"/>
-      <el-table-column :show-overflow-tooltip="true" prop="originalPrice" label="Original price" width="115px"/>
-      <el-table-column prop="code" label="code" width="260px"/>
-      <el-table-column prop="codeWork" label="codeWork" width="260px"/>
+      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" :show-overflow-tooltip="true" prop="dealPrice" label="Deal price" width="100px"/>
+      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" :show-overflow-tooltip="true" prop="originalPrice" label="Original price" width="115px"/>
+      <el-table-column prop="code" label="code" width="100px"/>
+      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" prop="codeWork" label="codeWork" width="260px"/>
       <el-table-column :show-overflow-tooltip="true" prop="discount" label="Discount"/>
       <el-table-column prop="startDate" label="开始时间" width="100px"/>
-      <el-table-column prop="endDate" label="结束时间" width="100px"/>
-      <el-table-column prop="postingEffect" label="发帖效果"/>
+      <el-table-column prop="estimatedTime" label="预计发帖时间" width="110px"/>
+      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" prop="endDate" label="结束时间" width="100px"/>
+      <el-table-column prop="postingEffect" label="发帖效果" width="200px">
+        <template slot-scope="scope">
+          <el-popover
+            placement="right"
+            width="600"
+            trigger="hover">
+            <el-timeline>
+              <el-timeline-item v-for="effect in ZwPostingEffect" :timestamp="parseTime(effect.submitTime)" placement="top">
+                <el-card>
+                  <h4>{{ effect.postingEffect }}</h4>
+                </el-card>
+              </el-timeline-item>
+            </el-timeline>
+            <a v-if="scope.row.status==='2'&&scope.row.postingEffect.length>20" slot="reference" @mouseover="showAllEffect(scope.row.id)">{{ scope.row.postingEffect.substring(0,20)+'...' }}</a>
+            <a v-if="scope.row.status==='2'&&scope.row.postingEffect.length<=20" slot="reference" @mouseover="showAllEffect(scope.row.id)">{{ scope.row.postingEffect }}</a>
+          </el-popover>
+        </template>
+      </el-table-column>
       <el-table-column prop="postingImg" label="发帖截图" width="110px">
         <template slot-scope="scope">
           <el-link target="_blank" title="点击展示" type="success" @click="open(scope.row.postingImg)">点击展示</el-link>
         </template>
       </el-table-column>
       <!--<el-table-column prop="postingImg" label="发帖截图"/>-->
-      <el-table-column prop="submitTime" label="提交时间" width="100px">
+      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" prop="submitTime" label="提交时间" width="100px">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.submitTime) }}</span>
         </template>
@@ -139,7 +157,15 @@
           <span v-for="item in dicts" v-if="scope.row.status ===item.value">{{ item.label }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="remark" label="备注"/>
+      <el-table-column v-if="checkPermission(['ZW_INVISIBLES'])" prop="remark" label="备注"/>
+      <el-table-column v-if="checkPermission(['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_CHANNEL_REMARK'])" ref="table" width="200px" prop="channelRemark" label="渠道-备注">
+        <template slot-scope="scope">
+          <!--<div v-for="item in dicts" :key="item.id">
+            <el-tag v-if="scope.row.enabled.toString() === item.value" :type="scope.row.enabled ? '' : 'info'">{{ item.label }}</el-tag>
+          </div>-->
+          <el-input v-model="scope.row.channelRemark" placeholder="请输入内容" @blur="updateChannelRemarkInit(scope.row.id,scope.row.channelRemark)"></el-input>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="160px" align="center">
         <template slot-scope="scope">
           <el-tooltip content="点击复制详细信息" class="item" effect="dark" placement="top">
@@ -189,6 +215,8 @@ import edit from './module/edit'
 import initDict from '@/mixins/initDict'
 import { getMessage } from '@/api/zwSaleOrder'
 import { addMessage } from '@/api/zwSaleOrder'
+import { updateChannelRemark } from '@/api/zwSaleOrder'
+import { showAllZwEffect } from '@/api/zwSaleOrder'
 export default {
   components: { eHeader, edit },
   mixins: [initData, initDict],
@@ -201,8 +229,10 @@ export default {
       delLoading: false,
       sup_this: this,
       queryForm: { msgKey: '', msgValue: '' },
+      updateForm: { id: '', channelRemark: '' },
       urls: [],
-      tableData: []
+      tableData: [],
+      ZwPostingEffect: []
     }
   },
   mounted: function() {
@@ -220,10 +250,35 @@ export default {
   methods: {
     parseTime,
     checkPermission,
+    updateChannelRemarkInit(id, channelRemark) {
+      this.updateForm.id = id
+      this.updateForm.channelRemark = channelRemark
+      updateChannelRemark(this.updateForm).then(res => {
+        this.init()
+        this.$message({
+          message: '修改成功！',
+          center: true,
+          type: 'success'
+        })
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
+    },
     sendMsg() {
       addMessage(this.queryForm).then(row => {
         this.queryForm.msgValue = ''
         this.messageInit(this.queryForm.msgKey)
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
+    },
+    showAllEffect(id) {
+      this.ZwPostingEffect = []
+      console.log(id)
+      showAllZwEffect(id).then(row => {
+        for (let i = row.length - 1; i >= 0; i--) {
+          this.ZwPostingEffect.push(row[i])
+        }
       }).catch(err => {
         console.log(err.response.data.message)
       })
@@ -285,7 +340,7 @@ export default {
         'Deal Price : ' + row.dealPrice + ' \n' +
         'Original Price : ' + row.originalPrice + ' \n' +
         'Code : ' + row.code + '(' + row.codeWork + ')' + '  \n' +
-        'Discount : ' + row.discount + '  \n' +
+        'Discount : ' + row.discount + '%OFF  \n' +
         'Start Date : ' + row.startDate + ' \n' +
         'End Date : ' + row.endDate
       console.log(Url2)

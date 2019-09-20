@@ -53,3 +53,42 @@ export function addMessage(data) {
     data
   })
 }
+
+export function arrange(ids) {
+  return request({
+    url: 'api/zwSaleOrder/arrange',
+    method: 'put',
+    data: ids
+  })
+}
+
+export function revoke(ids) {
+  return request({
+    url: 'api/zwSaleOrder/revoke',
+    method: 'put',
+    data: ids
+  })
+}
+
+export function updateChannelRemark(data) {
+  return request({
+    url: 'api/zwSaleOrder/updateChannelRemark',
+    method: 'post',
+    data
+  })
+}
+
+export function showAllZwEffect(id) {
+  return request({
+    url: 'api/zwPostingEffect/' + id,
+    method: 'get'
+  })
+}
+
+export function signPayment(ids) {
+  return request({
+    url: 'api/zwSaleOrder/signPayment',
+    method: 'put',
+    data: ids
+  })
+}

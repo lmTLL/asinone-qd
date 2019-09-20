@@ -146,3 +146,26 @@ export function playFollow(ids) {
     data: ids
   })
 }
+
+export function signPayment(ids) {
+  return request({
+    url: 'api/saleOrder/signPayment',
+    method: 'put',
+    data: ids
+  })
+}
+
+export function getMessage(msgKey) {
+  return request({
+    url: 'api/messageAll/' + msgKey,
+    method: 'get'
+  })
+}
+
+export function addMessage(data) {
+  return request({
+    url: 'api/message',
+    method: 'post',
+    data
+  })
+}

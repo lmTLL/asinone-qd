@@ -23,30 +23,17 @@ export default {
       const _this = this.$refs.form
       _this.form = {
         id: this.data.id,
-        zwSaleNumber: this.data.zwSaleNumber,
-        projectName: this.data.projectName,
-        zwChannelId: this.data.zwChannelId,
-        zwChannelName: this.data.zwChannelName,
-        zwChannelUserId: this.data.zwChannelUserId,
-        invitation: this.data.invitation,
-        customerNickname: this.data.customerNickname,
         site: this.data.site,
         link: this.data.link,
+        productName: this.data.productName,
         dealSite: this.data.dealSite,
         dealPrice: this.data.dealPrice,
         originalPrice: this.data.originalPrice,
         code: this.data.code,
+        codeWork: this.data.codeWork,
         discount: this.data.discount,
         startDate: this.data.startDate,
-        endDate: this.data.endDate,
-        postingEffect: this.data.postingEffect,
-        postingImg: this.data.postingImg,
-        submitTime: this.data.submitTime,
-        accountTime: this.data.accountTime,
-        accountOrder: this.data.accountOrder,
-        status: this.data.status,
-        customerId: this.data.customerId,
-        remark: this.data.remark
+        endDate: this.data.endDate
       }
       _this.dialog = true
     }

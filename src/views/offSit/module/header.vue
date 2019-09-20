@@ -1,11 +1,18 @@
 <template>
   <div class="head-container">
     <!-- 搜索 -->
-    <el-input v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery"/>
-    <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
+    <el-date-picker
+      v-if="query.type==='estimatedTime'"
+      v-model="sssss"
+      type="date"
+      value-format="yyyy-MM-dd"
+      placeholder="选择日期"
+      @change="queryInit"/>
+    <el-input v-if="query.type!=='newOrder'&&query.type!=='estimatedTime'&&query.type!=='financePayment'" v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;margin-top: 6px" class="filter-item" @keyup.enter.native="toQuery"/>
+    <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px;margin-top: 6px" @change="queryInit">
       <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
     </el-select>
-    <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
+    <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" style="margin-top: 5px" @click="toQuery">搜索</el-button>
     <div style="padding:30px;" >
       <el-dialog
         :visible.sync="dialogVisible5"
@@ -41,6 +48,23 @@
       </el-dialog>
 
       <el-dialog
+        :visible.sync="dialogVisible3"
+        :append-to-body="true"
+        :before-close="handleClose"
+        title="撤单"
+        width="500px">
+        <div style="text-align: center;font-size: 18px">
+          <p>确定要撤销该订单？</p>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <div style="width: 100%;text-align: center">
+            <el-button @click="dialogVisible3 = false">取 消</el-button>
+            <el-button type="primary" @click="revokeinit">确 定</el-button>
+          </div>
+        </span>
+      </el-dialog>
+
+      <el-dialog
         :visible.sync="dialogVisible1"
         :append-to-body="true"
         :before-close="handleClose"
@@ -59,7 +83,13 @@
               <i class="el-icon-upload"/>
               <div class="el-upload__text">将效果图拖到此处，或<em>点击上传</em></div>
             </el-upload>
-            <span>发帖效果：</span><el-input v-model="feedbackForm.postingEffect" style="width: 279px;" placeholder="例：从1.1万名到5000名"/>
+            <span>发帖效果：</span>
+            <el-input
+              :autosize="{ minRows: 5, maxRows: 8}"
+              v-model="feedbackForm.postingEffect"
+              style="width: 361px"
+              type="textarea"
+              placeholder="例：从1.1万名到5000名"/>
           </div>
         </div>
         <span slot="footer" class="dialog-footer">
@@ -79,7 +109,7 @@
         <eForm ref="form" :is-add="true"/>
       </div>-->
       <router-link to="/nested/offSitAdd">
-      <!--<router-link to="@/views/offSit/add/index">-->
+        <!--<router-link to="@/views/offSit/add/index">-->
         <div style="display: inline-block;margin: 0px 2px;">
           <el-button
             v-permission="['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_CREATE']"
@@ -109,6 +139,46 @@
           icon="el-icon-connection"
           @click="openFeed">发帖反馈</el-button>
       </div>
+
+      <div v-permission="['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_ARRANGE']" style="display: inline-block;">
+        <el-button
+          :disabled="$parent.data.length === 0 || $parent.$refs.table.selection.length === 0"
+          class="filter-item"
+          size="mini"
+          type="info"
+          icon="el-icon-check"
+          @click="arrangeinit">已安排</el-button>
+      </div>
+
+      <div v-permission="['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_REVOKE']" style="display: inline-block;">
+        <el-button
+          :disabled="$parent.data.length === 0 || $parent.$refs.table.selection.length === 0"
+          class="filter-item"
+          size="mini"
+          type="danger"
+          icon="el-icon-circle-close"
+          @click="dialogVisible3=true">撤单</el-button>
+      </div>
+
+      <div v-permission="['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_SIGNPAYMENT']" style="display: inline-block;">
+        <el-button
+          :disabled="$parent.data.length === 0 || $parent.$refs.table.selection.length === 0"
+          class="filter-item"
+          size="mini"
+          type="warning"
+          icon="el-icon-location"
+          @click="signPayment">标记已付款</el-button>
+      </div>
+
+      <div v-permission="['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_DOWNLOAD']" style="display: inline-block;">
+        <a href="https://eladmin.asinone.vip/api/zwSaleOrder/downloadTxt" style="color: #42b983">
+          <el-button
+            class="filter-item"
+            size="mini"
+            icon="el-icon-download"
+            @click="downloadTxtInit">下载今日待发帖订单</el-button>
+        </a>
+      </div>
     </div>
   </div>
 </template>
@@ -119,7 +189,11 @@ import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
 import { upload } from '@/api/zwSaleOrder'
 import { feedback } from '@/api/zwSaleOrder'
+import { arrange } from '@/api/zwSaleOrder'
+import { revoke } from '@/api/zwSaleOrder'
+import { signPayment } from '@/api/zwSaleOrder'
 export default {
+  inject: ['reload'],
   components: { eForm },
   props: {
     query: {
@@ -130,6 +204,8 @@ export default {
   },
   data() {
     return {
+      sssss: '',
+      dialogVisible3: false,
       dialogVisible1: false,
       dialogVisible5: false,
       upLoadForm: { id: '', accountImg: '', accountOrder: '' },
@@ -144,7 +220,10 @@ export default {
         { key: 'customerNickname', display_name: '客户昵称' },
         { key: 'site', display_name: '站点' },
         { key: 'link', display_name: 'asin' },
-        { key: 'dealSite', display_name: 'Deal站' }
+        { key: 'dealSite', display_name: 'Deal站' },
+        { key: 'newOrder', display_name: '未安排订单' },
+        { key: 'estimatedTime', display_name: '预计发帖时间' },
+        { key: 'financePayment', display_name: '未付款' }
       ]
     }
   },
@@ -154,6 +233,42 @@ export default {
     ])
   },
   methods: {
+    downloadTxtInit() {
+      this.$message({
+        message: '开始下载！',
+        center: true,
+        type: 'success'
+      })
+    },
+    signPayment() {
+      const data = this.$parent.$refs.table.selection
+      const ids = []
+      for (let i = 0; i < data.length; i++) {
+        ids.push(data[i].id)
+      }
+      signPayment(ids).then(res => {
+        this.$parent.init()
+        this.$message({
+          message: '标记成功！',
+          center: true,
+          type: 'success'
+        })
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
+    },
+    queryInit() {
+      this.query.value = ''
+      if (this.query.type === 'newOrder') {
+        this.query.value = '0'
+      }
+      if (this.query.type === 'financePayment') {
+        this.query.value = '0'
+      }
+      if (this.query.type === 'estimatedTime') {
+        this.query.value = this.sssss
+      }
+    },
     quxiao(file, fileList) {
       this.feedbackForm.effectImgs = []
       for (let i = 0; i < fileList.length; i++) {
@@ -174,6 +289,7 @@ export default {
           type: 'success',
           duration: 2500
         })
+        this.reload()
         this.dialogVisible1 = false
         this.feedbackForm.postingEffect = ''
         this.feedbackForm.effectImgs = []
@@ -226,6 +342,41 @@ export default {
           duration: 2500
         })
       }
+    },
+    arrangeinit() {
+      const data = this.$parent.$refs.table.selection
+      const ids = []
+      for (let i = 0; i < data.length; i++) {
+        ids.push(data[i].id)
+      }
+      arrange(ids).then(res => {
+        this.$parent.init()
+        this.$notify({
+          title: '已标记安排！',
+          type: 'success',
+          duration: 2500
+        })
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
+    },
+    revokeinit() {
+      const data = this.$parent.$refs.table.selection
+      const ids = []
+      for (let i = 0; i < data.length; i++) {
+        ids.push(data[i].id)
+      }
+      revoke(ids).then(res => {
+        this.$parent.init()
+        this.$notify({
+          title: '已撤单！',
+          type: 'success',
+          duration: 2500
+        })
+        this.dialogVisible3 = false
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
     },
     payment() {
       // this.$parent.init()

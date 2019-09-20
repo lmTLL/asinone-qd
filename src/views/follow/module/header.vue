@@ -1,11 +1,17 @@
 <template>
   <div class="head-container">
     <!-- 搜索 -->
-    <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
+    <!--<el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px">
       <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
     </el-select>
-    <el-input v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery"/>
-    <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="toQuery">搜索</el-button>
+    <el-input v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery"/>-->
+
+    <el-input v-if="query.type!=='financePayment'" v-model="query.value" clearable placeholder="输入搜索内容" style="width: 200px;margin-top: 6px" class="filter-item" @keyup.enter.native="toQuery"/>
+    <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px;margin-top: 6px" @change="queryInit">
+      <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+    </el-select>
+
+    <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" style="margin-top: 5px" @click="toQuery">搜索</el-button>
     <div style="padding:30px;width: 1800px;" >
       <!--<el-dialog
         :append-to-body="true"
@@ -278,7 +284,17 @@
           @click="doInitChannel">换渠道</el-button>
       </div>
 
-      <div v-permission="['ADMIN1']" style="display: inline-block;">
+      <div v-permission="['ADMIN','SALEORDER_ALL','SALEORDER_SIGNPAYMENT']" style="display: inline-block;">
+        <el-button
+          :disabled="$parent.data.length === 0 || $parent.$refs.table.selection.length === 0"
+          class="filter-item"
+          size="mini"
+          type="warning"
+          icon="el-icon-location"
+          @click="signPayment">标记已付款</el-button>
+      </div>
+
+      <div v-permission="['ADMIN']" style="display: inline-block;">
         <el-button
           :disabled="$parent.data.length === 0 || $parent.$refs.table.selection.length === 0"
           class="filter-item"
@@ -306,6 +322,7 @@ import { signHandle } from '@/api/saleOrder'
 import { changeChannel } from '@/api/saleOrder'
 import { playFollow } from '@/api/saleOrder'
 import { getToken } from '@/utils/auth'
+import { signPayment } from '@/api/saleOrder'
 import { mapGetters } from 'vuex'
 export default {
   components: { eForm },
@@ -367,7 +384,8 @@ export default {
         { key: 'customerNickname', display_name: '客户昵称' },
         { key: 'channelName', display_name: '所选渠道' },
         { key: 'saleNumber', display_name: '订单号' },
-        { key: 'invitation', display_name: '销售名' }
+        { key: 'invitation', display_name: '销售名' },
+        { key: 'financePayment', display_name: '未付款' }
       ]
     }
   },
@@ -377,6 +395,29 @@ export default {
     ])
   },
   methods: {
+    signPayment() {
+      const data = this.$parent.$refs.table.selection
+      const ids = []
+      for (let i = 0; i < data.length; i++) {
+        ids.push(data[i].id)
+      }
+      signPayment(ids).then(res => {
+        this.$parent.init()
+        this.$message({
+          message: '标记成功！',
+          center: true,
+          type: 'success'
+        })
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
+    },
+    queryInit() {
+      this.query.value = ''
+      if (this.query.type === 'financePayment') {
+        this.query.value = '0'
+      }
+    },
     handleSuccess(response, file, fileList) {
       this.upLoadForm.accountImg = response.url
       this.upLoadForm.accountOrder = response.msg

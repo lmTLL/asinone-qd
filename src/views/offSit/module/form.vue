@@ -1,35 +1,14 @@
 <template>
-  <el-dialog :append-to-body="true" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="500px">
-    <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-      <el-form-item label="订单编号" >
-        <el-input v-model="form.zwSaleNumber" style="width: 370px;"/>
-      </el-form-item>
-      <el-form-item label="服务项目" >
-        <el-input v-model="form.projectName" style="width: 370px;"/>
-      </el-form-item>
-      <el-form-item label="zwChannelId" >
-        <el-input v-model="form.zwChannelId" style="width: 370px;"/>
-      </el-form-item>
-      <el-form-item label="渠道" >
-        <el-input v-model="form.zwChannelName" style="width: 370px;"/>
-      </el-form-item>
-      <el-form-item label="站外渠道用户id" >
-        <el-input v-model="form.zwChannelUserId" style="width: 370px;"/>
-      </el-form-item>
-      <el-form-item label="所属销售" >
-        <el-input v-model="form.invitation" style="width: 370px;"/>
-      </el-form-item>
-      <el-form-item label="客户昵称" >
-        <el-input v-model="form.customerNickname" style="width: 370px;"/>
-      </el-form-item>
+  <el-dialog :append-to-body="true" :visible.sync="dialog" :title="isAdd ? '新增' : '编辑'" width="630px" center>
+    <!--<el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
       <el-form-item label="站点" >
         <el-input v-model="form.site" style="width: 370px;"/>
       </el-form-item>
-      <el-form-item label="asin" >
-        <el-input v-model="form.link" style="width: 370px;"/>
-      </el-form-item>
       <el-form-item label="Deal站" >
         <el-input v-model="form.dealSite" style="width: 370px;"/>
+      </el-form-item>
+      <el-form-item label="asin" >
+        <el-input v-model="form.link" style="width: 370px;"/>
       </el-form-item>
       <el-form-item label="Deal price" >
         <el-input v-model="form.dealPrice" style="width: 370px;"/>
@@ -49,29 +28,72 @@
       <el-form-item label="结束时间" >
         <el-input v-model="form.endDate" style="width: 370px;"/>
       </el-form-item>
-      <el-form-item label="发帖效果" >
-        <el-input v-model="form.postingEffect" style="width: 370px;"/>
+    </el-form>-->
+    <el-form ref="form" :model="form" :rules="rules" size="small" style="height: 600px;margin: 0 auto" label-width="130px">
+      <el-form-item label="站点:" prop="site">
+        <el-select v-model="form.site" placeholder="请选择" style="width: 400px" @change="initDeals(form.site)" >
+          <el-option
+            v-for="item in options"
+            :key="item.site"
+            :label="item.label"
+            :value="item.site"/>
+        </el-select>
       </el-form-item>
-      <el-form-item label="发帖截图" >
-        <el-input v-model="form.postingImg" style="width: 370px;"/>
+      <el-form-item label="Deal 站:" prop="dealSite">
+        <el-select v-model="form.dealSite" placeholder="请选择" style="width: 400px">
+          <el-option
+            v-for="item in dealOptions"
+            :key="item.id"
+            :label="item.dealSite"
+            :value="item.dealSite"/>
+        </el-select>
       </el-form-item>
-      <el-form-item label="提交时间" >
-        <el-input v-model="form.submitTime" style="width: 370px;"/>
+      <el-form-item label="Product name:" prop="productName">
+        <el-input v-model="form.productName" style="width: 400px;" placeholder="请输入Product name"/>
       </el-form-item>
-      <el-form-item label="支付时间" >
-        <el-input v-model="form.accountTime" style="width: 370px;"/>
+
+      <el-form-item label="Link:" prop="link">
+        <el-input v-model="form.link" style="width: 400px;" placeholder="请输入Link"></el-input>
       </el-form-item>
-      <el-form-item label="支付单号" >
-        <el-input v-model="form.accountOrder" style="width: 370px;"/>
+      <el-form-item label="Deal Price:" prop="dealPrice">
+        <el-input v-model="form.dealPrice" style="width: 400px;" placeholder="请输入Deal Price"><template v-if="form.site === 'US'|| form.site === 'AU'" slot="append">美元</template><template v-if="form.site === 'DE' || form.site === 'FR' || form.site === 'IT' || form.site === 'ES'" slot="append">欧元</template><template v-if="form.site === 'JP'" slot="append">日元</template><template v-if="form.site === 'CA'" slot="append">加元</template><template v-if="form.site === 'UK'" slot="append">英镑</template></el-input>
       </el-form-item>
-      <el-form-item label="订单状态" >
-        <el-input v-model="form.status" style="width: 370px;"/>
+      <el-form-item label="Original Price:" prop="originalPrice">
+        <el-input v-model="form.originalPrice" style="width: 400px;" placeholder="请输入Original Price"><template v-if="form.site === 'US'|| form.site === 'AU'" slot="append">美元</template><template v-if="form.site === 'DE' || form.site === 'FR' || form.site === 'IT' || form.site === 'ES'" slot="append">欧元</template><template v-if="form.site === 'JP'" slot="append">日元</template><template v-if="form.site === 'CA'" slot="append">加元</template><template v-if="form.site === 'UK'" slot="append">英镑</template></el-input>
       </el-form-item>
-      <el-form-item label="用户id" >
-        <el-input v-model="form.customerId" style="width: 370px;"/>
+      <el-form-item label="Code:" prop="code">
+        <el-input v-model="form.code" style="width: 400px;" placeholder="请输入code"/>
+        <el-checkbox v-model="checked" @change="codeWorkInit">code works on all colors and all sizes</el-checkbox>
+        <el-input v-if="!checked" v-model="form.codeWork" style="width: 400px;" placeholder="code works on black&red"/>
       </el-form-item>
-      <el-form-item label="备注" >
-        <el-input v-model="form.remark" style="width: 370px;"/>
+      <el-form-item label="Discount:" prop="discount">
+        <el-input v-model="form.discount" style="width: 400px;" placeholder="请输入Discount"><template slot="append">OFF</template></el-input>
+      </el-form-item>
+      <el-form-item label="Start Date:" prop="startDate">
+        <div class="block" style="width: 400px;">
+          <span class="demonstration"></span>
+          <el-date-picker
+            v-model="form.startDate"
+            style="width: 400px"
+            type="datetime"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            placeholder="选择日期时间">
+          </el-date-picker>
+          <p style="height: 30px;margin-top: -10px">code在美国时间凌晨4点或4点前生效的， 今晚发帖。 </p>
+          <p style="height: 10px;margin-top: -15px">4点以后生效的明天安排发帖</p>
+        </div>
+      </el-form-item>
+      <el-form-item label="End Date:" prop="endDate">
+        <div class="block" style="width: 400px;">
+          <span class="demonstration"></span>
+          <el-date-picker
+            v-model="form.endDate"
+            style="width: 400px"
+            type="datetime"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            placeholder="选择日期时间">
+          </el-date-picker>
+        </div>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -83,6 +105,7 @@
 
 <script>
 import { add, edit } from '@/api/zwSaleOrder'
+import { zwDealSiteAll } from '@/api/zwDealSite'
 export default {
   props: {
     isAdd: {
@@ -97,6 +120,49 @@ export default {
   data() {
     return {
       loading: false, dialog: false,
+      options: [{
+        site: 'US',
+        label: '美国'
+      }, {
+        site: 'UK',
+        label: '英国'
+      }, {
+        site: 'DE',
+        label: '德国'
+      }, {
+        site: 'JP',
+        label: '日本'
+      }, {
+        site: 'FR',
+        label: '法国'
+      }, {
+        site: 'ES',
+        label: '西班牙'
+      }, /* {
+        site: 'IT',
+        label: '意大利'
+      },*/ {
+        site: 'AU',
+        label: '澳大利亚'
+      }, {
+        site: 'CA',
+        label: '加拿大'
+      } /* {
+        site: 'MX',
+        label: '墨西哥'
+      },*/ /* {
+        site: 'IN',
+        label: '印度'
+      }*/],
+      site: '',
+      options1: [{
+        followType: 'FBA',
+        label: 'FBA'
+      }, {
+        followType: 'FBM',
+        label: 'FBM'
+      }],
+      dealOptions: [],
       form: {
         id: '',
         zwSaleNumber: '',
@@ -124,6 +190,7 @@ export default {
         customerId: '',
         remark: ''
       },
+      checked: false,
       rules: {
       }
     }
@@ -132,11 +199,31 @@ export default {
     cancel() {
       this.resetForm()
     },
+    initDeals(site) {
+      this.form.dealSite = ''
+      console.log(this.form.dealSite)
+      this.dealOptions = []
+      zwDealSiteAll(site).then(row => {
+        this.form.dealSite = row[0].dealSite
+        for (let i = 0; i < row.length; i++) {
+          this.dealOptions.push(row[i])
+        }
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
+    },
     doSubmit() {
       this.loading = true
       if (this.isAdd) {
         this.doAdd()
       } else this.doEdit()
+    },
+    codeWorkInit() {
+      if (this.checked) {
+        this.form.codeWork = 'code works on all colors and all sizes'
+      } else {
+        this.form.codeWork = ''
+      }
     },
     doAdd() {
       add(this.form).then(res => {
