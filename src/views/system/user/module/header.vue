@@ -75,6 +75,7 @@ export default {
     },
     // 去查询
     toQuery() {
+      console.log(this.query.type)
       this.sup_this.page = 0
       this.sup_this.init()
     },

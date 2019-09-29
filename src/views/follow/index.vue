@@ -197,7 +197,9 @@ export default {
       const query = this.query
       const type = query.type
       const value = query.value
+      const financePayment = query.financePayment
       if (type && value) { this.params[type] = value }
+      if (financePayment !== '' && financePayment !== null) { this.params['financePayment'] = financePayment }
       return true
     },
     sendMsg() {

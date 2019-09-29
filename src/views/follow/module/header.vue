@@ -10,7 +10,9 @@
     <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px;margin-top: 6px" @change="queryInit">
       <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
     </el-select>
-
+    <el-select v-if="checkPermission(['ADMIN','ZWSALEORDER_SIGNPAYMENT'])" v-model="query.financePayment" clearable placeholder="付款状态" class="filter-item" style="width: 90px;margin-top: 6px" @change="toQuery">
+      <el-option v-for="item in enabledTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+    </el-select>
     <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" style="margin-top: 5px" @click="toQuery">搜索</el-button>
     <div style="padding:30px;width: 1800px;" >
       <!--<el-dialog
@@ -375,6 +377,10 @@ export default {
       dialogVisible: false,
       dialogVisible1: false,
       upLoadForm: { id: '', accountImg: '', accountOrder: '' },
+      enabledTypeOptions: [
+        { key: '0', display_name: '未付款' },
+        { key: '1', display_name: '已付款' }
+      ],
       queryTypeOptions: [
         { key: 'site', display_name: '站点' },
         { key: 'asin', display_name: 'asin' },
@@ -413,7 +419,7 @@ export default {
       })
     },
     queryInit() {
-      this.query.value = ''
+      // this.query.value = ''
       if (this.query.type === 'financePayment') {
         this.query.value = '0'
       }

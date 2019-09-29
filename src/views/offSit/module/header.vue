@@ -12,6 +12,9 @@
     <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px;margin-top: 6px" @change="queryInit">
       <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
     </el-select>
+    <el-select v-if="checkPermission(['ADMIN','ZWSALEORDER_SIGNPAYMENT'])" v-model="query.financePayment" clearable placeholder="付款状态" class="filter-item" style="width: 90px;margin-top: 6px" @change="toQuery">
+      <el-option v-for="item in enabledTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+    </el-select>
     <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" style="margin-top: 5px" @click="toQuery">搜索</el-button>
     <div style="padding:30px;" >
       <el-dialog
@@ -184,6 +187,7 @@
 </template>
 
 <script>
+import checkPermission from '@/utils/permission'
 import eForm from './form'
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
@@ -198,8 +202,7 @@ export default {
   props: {
     query: {
       type: Object,
-      required: true,
-      dialogVisible5: false
+      required: true
     }
   },
   data() {
@@ -208,6 +211,10 @@ export default {
       dialogVisible3: false,
       dialogVisible1: false,
       dialogVisible5: false,
+      enabledTypeOptions: [
+        { key: '0', display_name: '未付款' },
+        { key: '1', display_name: '已付款' }
+      ],
       upLoadForm: { id: '', accountImg: '', accountOrder: '' },
       feedbackForm: { id: '', postingEffect: '', effectImgs: [] },
       headers: {
@@ -222,8 +229,7 @@ export default {
         { key: 'link', display_name: 'asin' },
         { key: 'dealSite', display_name: 'Deal站' },
         { key: 'newOrder', display_name: '未安排订单' },
-        { key: 'estimatedTime', display_name: '预计发帖时间' },
-        { key: 'financePayment', display_name: '未付款' }
+        { key: 'estimatedTime', display_name: '预计发帖时间' }
       ]
     }
   },
@@ -233,6 +239,7 @@ export default {
     ])
   },
   methods: {
+    checkPermission,
     downloadTxtInit() {
       this.$message({
         message: '开始下载！',
@@ -258,13 +265,13 @@ export default {
       })
     },
     queryInit() {
-      this.query.value = ''
+      // this.query.value = ''
       if (this.query.type === 'newOrder') {
         this.query.value = '0'
       }
-      if (this.query.type === 'financePayment') {
+      /* if (this.query.type === 'financePayment') {
         this.query.value = '0'
-      }
+      }*/
       if (this.query.type === 'estimatedTime') {
         this.query.value = this.sssss
       }

@@ -57,10 +57,10 @@ export default {
       }, {
         site: 'ES',
         label: '西班牙'
-      }, /* {
+      }, {
         site: 'IT',
         label: '意大利'
-      },*/ {
+      }, {
         site: 'AU',
         label: '澳大利亚'
       }, {

@@ -250,10 +250,10 @@ export default {
       }, {
         site: 'ES',
         label: '西班牙'
-      }, /* {
+      }, {
         site: 'IT',
         label: '意大利'
-      },*/ {
+      }, {
         site: 'AU',
         label: '澳大利亚'
       }, {
@@ -299,20 +299,28 @@ export default {
     doAdd() {
       /* if (this.form.accountImg !== '' && this.form.accountOrder !== '') {*/
       this.form.projectName = '站外'
-      add(this.form).then(res => {
-        this.resetForm()
-        this.$notify({
-          title: '添加成功',
-          type: 'success',
-          duration: 2500
+      if (this.form.codeWork !== '') {
+        add(this.form).then(res => {
+          this.resetForm()
+          this.$notify({
+            title: '添加成功',
+            type: 'success',
+            duration: 2500
+          })
+          // this.loading = false
+          // this.$parent.$parent.init()
+          this.$router.push({ path: this.redirect || '/nested/offSit' })
+        }).catch(err => {
+          this.loading = false
+          console.log(err.response.data.message)
         })
-        // this.loading = false
-        // this.$parent.$parent.init()
-        this.$router.push({ path: this.redirect || '/nested/offSit' })
-      }).catch(err => {
-        this.loading = false
-        console.log(err.response.data.message)
-      })
+      } else {
+        this.$message({
+          message: '请填写code works on ！',
+          center: true,
+          type: 'error'
+        })
+      }
       /* } else {
         this.$notify({
           title: '请上传付款截图,并仔细验证支付单号',

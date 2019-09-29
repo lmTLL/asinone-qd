@@ -43,16 +43,58 @@
             :show-overflow-tooltip="true"
             prop="msgName"
             label="姓名"
-            width="100"/>
-          <el-table-column
+            width="120"/>
+          <!--<el-table-column
             prop="msgValue"
-            label="消息"/>
+            label="消息"/>-->
+          <el-table-column prop="msgValue" label="消息">
+            <template slot-scope="scope">
+              <el-popover
+                placement="right"
+                width="400"
+                trigger="hover">
+                <div class="block">
+                  <el-image :src="scope.row.msgValue"></el-image>
+                </div>
+                <el-image
+                  v-if="scope.row.msgValue.startsWith('http://eladmin.asinone.vip')"
+                  slot="reference"
+                  :src="scope.row.msgValue"
+                  :preview-src-list="srcList"
+                  style="width: 50px; height: 50px">
+                </el-image>
+              </el-popover>
+              <span v-if="!scope.row.msgValue.startsWith('http://eladmin.asinone.vip')">{{ scope.row.msgValue }}</span>
+            </template>
+          </el-table-column>
         </el-table>
+        <!--<el-upload
+          :headers="headers"
+          :action="imagesUploadApi"
+          :on-success="handleSuccess"
+          class="upload-demo"
+          drag
+          multiple>
+          <i class="el-icon-upload"/>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        </el-upload>-->
         <el-input
-          :autosize="{ minRows: 4, maxRows: 4}"
+          v-if="true"
+          :autosize="{ minRows: 6, maxRows: 6}"
           v-model="queryForm.msgValue"
+          style="width: 520px;float: left"
           type="textarea"
           placeholder="请输入内容"/>
+        <el-upload
+          :headers="headers"
+          :show-file-list="false"
+          :on-success="handleSuccess"
+          :action="imagesUploadApi"
+          drag
+          class="avatar-uploader">
+          <!--<img v-if="imageUrl" :src="imageUrl" class="avatar">-->
+          <i class="el-icon-plus avatar-uploader-icon">拖拽图片至框内发送</i>
+        </el-upload>
       </div>
       <span slot="footer" class="dialog-footer">
         <!--<el-button type="info" @click="centerDialogVisible1=false">关闭</el-button>-->
@@ -163,7 +205,9 @@
           <!--<div v-for="item in dicts" :key="item.id">
             <el-tag v-if="scope.row.enabled.toString() === item.value" :type="scope.row.enabled ? '' : 'info'">{{ item.label }}</el-tag>
           </div>-->
-          <el-input v-model="scope.row.channelRemark" placeholder="请输入内容" @blur="updateChannelRemarkInit(scope.row.id,scope.row.channelRemark)"></el-input>
+          <span v-if="scope.row.channelRemark!==null" :id="scope.row.zwSaleNumber" @click="showChannelRemarks(scope.row.zwSaleNumber)">{{ scope.row.channelRemark }}</span>
+          <span v-if="scope.row.channelRemark===null" :id="scope.row.zwSaleNumber" @click="showChannelRemarks(scope.row.zwSaleNumber)">点击添加</span>
+          <input :id="scope.row.zwSaleNumber+'s'" v-model="scope.row.channelRemark" style="display: none" placeholder="请输入内容" class="tl-price-input" @blur="updateChannelRemarkInit(scope.row.id,scope.row.channelRemark,scope.row.zwSaleNumber)"></input>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="160px" align="center">
@@ -197,6 +241,33 @@
   </div>
 </template>
 <style>
+  .avatar-uploader .el-upload {
+    border: 0px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .el-upload-dragger{
+    width: 137px;
+    height: 137px;
+  }
+  .avatar-uploader-icon {
+    font-size: 10px;
+    color: coral;
+    width: 137px;
+    height: 137px;
+    line-height: 137px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
   .el-table::before {
     left: 0;
     bottom: 1px;
@@ -207,6 +278,7 @@
 </style>
 <script>
 import checkPermission from '@/utils/permission'
+import { getToken } from '@/utils/auth'
 import initData from '@/mixins/initData'
 import { del } from '@/api/zwSaleOrder'
 import { parseTime } from '@/utils/index'
@@ -217,11 +289,16 @@ import { getMessage } from '@/api/zwSaleOrder'
 import { addMessage } from '@/api/zwSaleOrder'
 import { updateChannelRemark } from '@/api/zwSaleOrder'
 import { showAllZwEffect } from '@/api/zwSaleOrder'
+import { mapGetters } from 'vuex'
 export default {
   components: { eHeader, edit },
   mixins: [initData, initDict],
   data() {
     return {
+      headers: {
+        'Authorization': 'Bearer ' + getToken()
+      },
+      showChannelRemark: true,
       show3: true,
       centerDialogVisible1: false,
       centerDialogVisible: false,
@@ -231,9 +308,18 @@ export default {
       queryForm: { msgKey: '', msgValue: '' },
       updateForm: { id: '', channelRemark: '' },
       urls: [],
+      srcList: [
+        'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
+        'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg'
+      ],
       tableData: [],
       ZwPostingEffect: []
     }
+  },
+  computed: {
+    ...mapGetters([
+      'imagesUploadApi'
+    ])
   },
   mounted: function() {
     this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 50
@@ -250,9 +336,28 @@ export default {
   methods: {
     parseTime,
     checkPermission,
-    updateChannelRemarkInit(id, channelRemark) {
+    handleSuccess(response, file, fileList) {
+      this.queryForm.msgValue = response.url
+      addMessage(this.queryForm).then(row => {
+        this.queryForm.msgValue = ''
+        this.messageInit(this.queryForm.msgKey)
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
+    },
+    showChannelRemarks(zwSaleNumber) {
+      console.log(zwSaleNumber)
+      document.getElementById(zwSaleNumber).setAttribute('style', 'display: none')
+      document.getElementById(zwSaleNumber + 's').setAttribute('style', 'display: ')
+      for (let i = 0; i < document.getElementsByClassName('el-input').length; i++) {
+        // document.getElementsByClassName('el-input')[i].children.setAttribute('style', 'display: ')
+      }
+      // document.getElementsByClassName('el-input').setAttribute('style', 'display: ')
+    },
+    updateChannelRemarkInit(id, channelRemark, zwSaleNumber) {
       this.updateForm.id = id
       this.updateForm.channelRemark = channelRemark
+      this.showChannelRemark = true
       updateChannelRemark(this.updateForm).then(res => {
         this.init()
         this.$message({
@@ -260,6 +365,8 @@ export default {
           center: true,
           type: 'success'
         })
+        document.getElementById(zwSaleNumber).setAttribute('style', 'display: ')
+        document.getElementById(zwSaleNumber + 's').setAttribute('style', 'display: none')
       }).catch(err => {
         console.log(err.response.data.message)
       })
@@ -277,6 +384,7 @@ export default {
       console.log(id)
       showAllZwEffect(id).then(row => {
         for (let i = row.length - 1; i >= 0; i--) {
+          console.log(row)
           this.ZwPostingEffect.push(row[i])
         }
       }).catch(err => {
@@ -299,12 +407,14 @@ export default {
       const query = this.query
       const type = query.type
       const value = query.value
+      const financePayment = query.financePayment
       if (type && value) { this.params[type] = value }
+      if (financePayment !== '' && financePayment !== null) { this.params['financePayment'] = financePayment }
       return true
     },
     messageInit(zwSaleNumber) {
       this.queryForm.msgKey = zwSaleNumber
-      this.queryForm.msgValue = ''
+      // this.queryForm.msgValue = ''
       this.tableData = []
       getMessage(zwSaleNumber).then(row => {
         for (let i = 0; i < row.length; i++) {
@@ -377,5 +487,74 @@ export default {
     padding: 40px 20px;
     box-sizing: border-box;
     margin-right: 20px;
+  }
+  input, button {
+    border: none;
+    outline: none;
+  }
+  .tl-price-input{
+    width: 100%;
+    border: 1px solid #ccc;
+    padding: 7px 0;
+    background: #F4F4F7;
+    border-radius: 3px;
+    padding-left:5px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s
+  }
+  .tl-price-input:focus{
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
+  }
+
+  .ant-btn {
+    line-height: 1.499;
+    position: relative;
+    display: inline-block;
+    font-weight: 400;
+    white-space: nowrap;
+    text-align: center;
+    background-image: none;
+    border: 1px solid transparent;
+    -webkit-box-shadow: 0 2px 0 rgba(0,0,0,0.015);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.015);
+    cursor: pointer;
+    -webkit-transition: all .3s cubic-bezier(.645, .045, .355, 1);
+    transition: all .3s cubic-bezier(.645, .045, .355, 1);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    height: 32px;
+    padding: 0 15px;
+    font-size: 14px;
+    border-radius: 4px;
+    color: rgba(0,0,0,0.65);
+    background-color: #fff;
+    border-color: #d9d9d9;
+  }
+
+  .ant-btn-primary {
+    color: #fff;
+    background-color: #1890ff;
+    border-color: #1890ff;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.12);
+    -webkit-box-shadow: 0 2px 0 rgba(0,0,0,0.045);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.045);
+  }
+  .ant-btn-red {
+    color: #fff;
+    background-color: #FF5A44;
+    border-color: #FF5A44;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.12);
+    -webkit-box-shadow: 0 2px 0 rgba(0,0,0,0.045);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.045);
   }
 </style>
