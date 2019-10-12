@@ -181,7 +181,7 @@
       <div style="border: black 0px solid;text-align: center;margin-top: 20px">
         <el-button v-show="buttonShow" @click="backs">上一步</el-button>
         <el-button v-show="buttonShow1" style="margin-left: 130px;width: 400px" type="success" @click="Account">完成</el-button>
-        <el-button v-show="submitButton" style="" @click="doAdd">提交</el-button>
+        <el-button v-show="submitButton" :disabled="!firstClick" style="" @click="doAdd">提交</el-button>
         <!--<el-button v-show="buttonShow" style="" @click="doAdd">提交</el-button>-->
       </div>
     </div>
@@ -207,6 +207,7 @@ export default {
       checked: true,
       submitButton: false,
       buttonShow1: true,
+      firstClick: true,
       show3: false,
       formStyle: 'height: 680px;margin: 0 auto',
       rate: 0,
@@ -297,6 +298,7 @@ export default {
       }
     },
     doAdd() {
+      this.firstClick = false
       /* if (this.form.accountImg !== '' && this.form.accountOrder !== '') {*/
       this.form.projectName = '站外'
       if (this.form.codeWork !== '') {
@@ -307,6 +309,7 @@ export default {
             type: 'success',
             duration: 2500
           })
+          this.firstClick = true
           // this.loading = false
           // this.$parent.$parent.init()
           this.$router.push({ path: this.redirect || '/nested/offSit' })

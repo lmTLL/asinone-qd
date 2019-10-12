@@ -155,7 +155,7 @@
         </div>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible5 = false,remark='',upLoadForm.accountImg='',upLoadForm.accountOrder=''">取 消</el-button>
-          <el-button type="primary" @click="doUpload">确 定</el-button>
+          <el-button :disabled="!firstClick" type="primary" @click="doUpload">确 定</el-button>
         </span>
       </el-dialog>
 
@@ -171,6 +171,39 @@
         <span slot="footer" class="dialog-footer">
           <div style="width: 100%;text-align: center">
             <el-button @click="dialogVisible6 = false,remark = ''">取 消</el-button>
+            <el-button type="primary" @click="doSignHandle">确 定</el-button>
+          </div>
+        </span>
+      </el-dialog>
+
+      <el-dialog
+        :visible.sync="dialogVisible8"
+        :append-to-body="true"
+        :before-close="handleClose"
+        title="订单导入"
+        width="500px">
+        <div style="text-align: center;font-size: 18px">
+          <el-select v-model="value" placeholder="请先选择渠道！" style="width: 360px;margin-bottom: 10px">
+            <el-option
+              v-for="item in options"
+              :key="item.id"
+              :label="item.channelName+'-'+item.followType+'-￥'+item.price"
+              :value="item.id"/>
+          </el-select>
+          <el-upload
+            :headers="headers"
+            :action="excelUploadApi+'/'+value"
+            :on-success="excelSuccess"
+            class="upload-demo"
+            drag
+            multiple>
+            <i class="el-icon-upload"/>
+            <div class="el-upload__text">将Excel文件拖到此处，或<em>点击上传</em></div>
+          </el-upload>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <div style="width: 100%;text-align: center">
+            <el-button @click="dialogVisible8 = false">取 消</el-button>
             <el-button type="primary" @click="doSignHandle">确 定</el-button>
           </div>
         </span>
@@ -296,7 +329,7 @@
           @click="signPayment">标记已付款</el-button>
       </div>
 
-      <div v-permission="['ADMIN']" style="display: inline-block;">
+      <div v-permission="['ADMIN1']" style="display: inline-block;">
         <el-button
           :disabled="$parent.data.length === 0 || $parent.$refs.table.selection.length === 0"
           class="filter-item"
@@ -304,6 +337,26 @@
           type="#000000"
           icon="el-icon-warning-outline"
           @click="playFollow">赶跟卖</el-button>
+      </div>
+
+      <div v-permission="['ADMIN','SALEORDER_ALL','SALEORDER_IMPORT']" style="display: inline-block;">
+        <el-button
+          class="filter-item"
+          size="mini"
+          type="#000000"
+          icon="el-icon-tickets"
+          @click="excelImport">Excel导入订单</el-button>
+          <!--@click="dialogVisible8=true">Excel导入订单</el-button>-->
+      </div>
+
+      <div v-permission="['ADMIN','SALEORDER_ALL','SALEORDER_DOWNLOAD']" style="display: inline-block;">
+        <a href="https://eladmin.asinone.vip/api/saleOrder/ExcelsDownload" style="color: #42b983">
+          <el-button
+            class="filter-item"
+            size="mini"
+            icon="el-icon-download"
+            @click="downloadTxtInit">下载模板</el-button>
+        </a>
       </div>
     </div>
   </div>
@@ -327,6 +380,7 @@ import { getToken } from '@/utils/auth'
 import { signPayment } from '@/api/saleOrder'
 import { mapGetters } from 'vuex'
 export default {
+  inject: ['reload'],
   components: { eForm },
   props: {
     query: {
@@ -365,8 +419,10 @@ export default {
         'Authorization': 'Bearer ' + getToken()
       },
       dialogVisible7: false,
+      dialogVisible8: false,
       dialogVisible6: false,
       dialogVisible5: false,
+      firstClick: true,
       dialogVisible2: false,
       dialogVisible3: false,
       dialogVisible4: false,
@@ -398,9 +454,32 @@ export default {
   computed: {
     ...mapGetters([
       'imagesUploadApi'
+    ]),
+    ...mapGetters([
+      'excelUploadApi'
     ])
   },
   methods: {
+    excelImport() {
+      console.log(this.imagesUploadApi)
+      console.log(this.excelUploadApi)
+      this.options = []
+      channelAll().then(row => {
+        for (let i = 0; i < row.length; i++) {
+          this.options.push(row[i])
+        }
+      }).catch(err => {
+        console.log(err.response.data.message)
+      })
+      this.dialogVisible8 = true
+    },
+    downloadTxtInit() {
+      this.$message({
+        message: '开始下载！',
+        center: true,
+        type: 'success'
+      })
+    },
     signPayment() {
       const data = this.$parent.$refs.table.selection
       const ids = []
@@ -427,6 +506,16 @@ export default {
     handleSuccess(response, file, fileList) {
       this.upLoadForm.accountImg = response.url
       this.upLoadForm.accountOrder = response.msg
+    },
+    excelSuccess(response) {
+      this.$message({
+        message: '导入成功！',
+        type: 'success',
+        center: true
+      })
+      this.$parent.init()
+      this.reload()
+      this.dialogVisible8 = false
     },
     checkPermission,
     toQuery() {
@@ -666,6 +755,7 @@ export default {
       }
     },
     doUpload: function() {
+      this.firstClick = false
       const data = this.$parent.$refs.table.selection
       for (let i = 0; i < data.length; i++) {
         this.upLoadForm.id = data[i].id
@@ -684,6 +774,7 @@ export default {
           this.upLoadForm.id = ''
           this.upLoadForm.accountImg = ''
           this.upLoadForm.accountOrder = ''
+          this.firstClick = true
         }).catch(err => {
           console.log(err.response.data.message)
         })

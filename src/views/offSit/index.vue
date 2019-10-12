@@ -86,6 +86,7 @@
           type="textarea"
           placeholder="请输入内容"/>
         <el-upload
+          id="uploadImgs"
           :headers="headers"
           :show-file-list="false"
           :on-success="handleSuccess"
@@ -213,7 +214,13 @@
       <el-table-column label="操作" width="160px" align="center">
         <template slot-scope="scope">
           <el-tooltip content="点击复制详细信息" class="item" effect="dark" placement="top">
-            <el-button type="text" @click="copyText(scope.row)">复制</el-button>
+            <!--<el-button type="text" @click="copyText(scope.row)">复制</el-button>-->
+            <el-button
+              class="filter-item"
+              size="mini"
+              type="success"
+              icon="el-icon-document-copy"
+              @click="copyText(scope.row,$event)"></el-button>
           </el-tooltip>
           <edit v-permission="['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_EDIT']" :data="scope.row" :sup_this="sup_this"/>
           <el-popover
@@ -251,7 +258,7 @@
   .avatar-uploader .el-upload:hover {
     border-color: #409EFF;
   }
-  .el-upload-dragger{
+  #uploadImgs .el-upload-dragger{
     width: 137px;
     height: 137px;
   }
@@ -290,6 +297,7 @@ import { addMessage } from '@/api/zwSaleOrder'
 import { updateChannelRemark } from '@/api/zwSaleOrder'
 import { showAllZwEffect } from '@/api/zwSaleOrder'
 import { mapGetters } from 'vuex'
+import clipboard from '@/utils/clipboard'
 export default {
   components: { eHeader, edit },
   mixins: [initData, initDict],
@@ -442,7 +450,7 @@ export default {
         console.log(err.response.data.message)
       })
     },
-    copyText(row) {
+    copyText(row, event) {
       const Url2 = 'WeChat nickname : ' + row.invitation + '-' + row.customerNickname + ' \n' +
         'Deal站 : ' + row.dealSite + ' \n' +
         'Product name : ' + row.productName + ' \n' +
@@ -454,7 +462,8 @@ export default {
         'Start Date : ' + row.startDate + ' \n' +
         'End Date : ' + row.endDate
       console.log(Url2)
-      var oInput = document.createElement('span') // 创建一个隐藏input（重要！）
+      clipboard(Url2, event)
+      /* var oInput = document.createElement('span') // 创建一个隐藏input（重要！）
       oInput.innerText = Url2
       oInput.value = Url2 // 赋值
       console.log(oInput.value)
@@ -469,7 +478,7 @@ export default {
         message: '复制成功！',
         type: 'success',
         center: true
-      })
+      })*/
     }
   }
 }

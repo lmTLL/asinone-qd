@@ -5,6 +5,7 @@ const api = {
     socketApi: baseUrl + '/websocket?token=kl',
     // 图片上传
     imagesUploadApi: baseUrl + '/api/pictures',
+    excelUploadApi: baseUrl + '/api/saleOrder/excelSaleOrder',
     // 修改头像
     updateAvatarApi: baseUrl + '/api/users/updateAvatar',
     // 上传文件到七牛云

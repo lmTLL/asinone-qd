@@ -9,12 +9,9 @@
         <el-input
           v-model="AccountPrice"
           :disabled="true"
-          placeholder="请输入内容">
-        </el-input>
+          placeholder="请输入内容"/>
         <p style="font-size: 20px">付款时请备注：<span style="color:red;">{{ form.paymentRemark }}</span></p>
-        <div style="margin:0 auto;width: 900px;height: 480px;margin-top: -60px; border: 0px salmon solid; background:url('http://39.98.168.25:8082/statics/2019/07/19/f68ac56bcc618751ad03b5954a4805a9.png') no-repeat 0px -0px">
-
-        </div>
+        <div style="margin:0 auto;width: 900px;height: 480px;margin-top: -60px; border: 0px salmon solid; background:url('http://39.98.168.25:8082/statics/2019/07/19/f68ac56bcc618751ad03b5954a4805a9.png') no-repeat 0px -0px"/>
         <div style="width: 0px;margin: 0 auto;margin-top: 40px"><el-button type="primary" style="width: 400px" @click="dialogVisible1=true">OK，Get it</el-button></div>
         <!--<span slot="footer" class="dialog-footer" style="margin: 0 auto;" >
         </span>-->
@@ -31,8 +28,7 @@
         <el-input
           v-model="AccountPrice"
           :disabled="true"
-          placeholder="请输入内容">
-        </el-input>
+          placeholder="请输入内容"/>
         <!--<p style="font-size: 20px">付款时请备注：<span style="color:red;">{{ form.paymentRemark }}</span></p>-->
         <img src="https://eladmin.asinone.vip/statics/2019/09/11/7ee51b7e97831c9abd2ddbc15370cf0b7ee51b7e97831c9abd2ddbc15370cf0b.png" style="width: 200px;height: 300px;margin-left: 160px;margin-top: 10px"><br>
         <span style="margin-left: 207px">打开<span style="color: red">支付宝</span>扫一扫</span><br><br><br>
@@ -92,11 +88,11 @@
     </div>
     <!--<div v-show="show1" style="position:relative;left:18%;top:50%;padding-top: 30px;border: 0px black solid;width: 1000px;height: 620px">-->
     <div v-show="show1" style="position:relative;">
-        <div style="text-align: center;border: black 0px solid;width: 100%;margin: 0 auto"><p style="font-size: 25px;font-weight: bold" >填写跟卖信息</p>
-        </div>
+      <div style="text-align: center;border: black 0px solid;width: 100%;margin: 0 auto"><p style="font-size: 25px;font-weight: bold" >填写跟卖信息</p>
+      </div>
       <div style="border: black 0px solid;margin: 0 auto;width: 100%;">
         <div style="border: black 0px solid;margin: 0 auto;width: 530px">
-          <el-form :model="form" :rules="rules" style="height: 500px;margin: 0 auto" label-width="130px">
+          <el-form :model="form" :rules="rules" style="height: 500px;margin: 0 auto;margin-left: -40px" label-width="160px">
             <el-form-item label="跟卖asin:" prop="asin">
               <el-input v-model="form.asin" style="width: 400px;" placeholder="请输入asin"/>
             </el-form-item>
@@ -124,11 +120,11 @@
             <el-form-item label="跟卖时间:" prop="followTime">
               <el-input v-model="form.followTime" style="width: 400px;" placeholder="请输入具体时间，如：晚上11点"/>
             </el-form-item>
-            <el-form-item label="跟卖店铺链接或ID:" prop="followShopUrl">
-              <el-input v-model="form.followShopUrl" style="width: 400px;" placeholder="请输入跟卖店铺链接或ID"/>
+            <el-form-item label="跟卖方店铺链接或ID:" prop="followShopUrl">
+              <el-input v-model="form.followShopUrl" style="width: 400px;" placeholder="请输入跟卖方店铺链接或ID"/>
             </el-form-item>
-            <el-form-item label="跟卖店铺名称:" prop="followShopName">
-              <el-input v-model="form.followShopName" style="width: 400px;" placeholder="请输入跟卖店铺名称"/>
+            <el-form-item label="跟卖方店铺名称:" prop="followShopName">
+              <el-input v-model="form.followShopName" style="width: 400px;" placeholder="请输入跟卖方店铺名称"/>
             </el-form-item>
             <el-form-item label="质保时间:" prop="scope">
               <el-radio v-model="form.assuranceTime" label="15天" style="width: 100px">质保15天</el-radio>
@@ -168,7 +164,7 @@
             class="upload-demo"
             drag
             multiple>
-            <i class="el-icon-upload"></i>
+            <i class="el-icon-upload"/>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
           </el-upload>
           <el-input v-model="form.accountOrder" style="width: 360px;" placeholder="上传付款截图识别单号或手动输入"/>
@@ -179,7 +175,7 @@
       <div style="border: black 0px solid;text-align: center;margin-top: 30px">
         <el-button v-show="buttonShow" style="" @click="back">上一步</el-button>
         <el-button v-show="buttonShow1" style="margin-left: 40px" @click="next">下一步</el-button>
-        <el-button v-show="submitButton" style="" @click="doAdd">提交，立刻开始打跟卖</el-button>
+        <el-button v-show="submitButton" :disabled="!firstClick" style="" @click="doAdd">提交，立刻开始打跟卖</el-button>
       </div>
     </div>
     <!--<el-steps :active="active" finish-status="success" style="padding-top: 200px">
@@ -207,6 +203,7 @@ export default {
         'Authorization': 'Bearer ' + getToken()
       },
       submitButton: false,
+      firstClick: true,
       buttonShow1: true,
       show3: false,
       rate: 0,
@@ -288,6 +285,7 @@ export default {
       this.form.accountOrder = response.msg
     },
     doAdd() {
+      this.firstClick = false
       /* if (this.form.accountImg !== '' && this.form.accountOrder !== '') {*/
       this.form.projectName = '打跟卖'
       add(this.form).then(res => {
@@ -297,6 +295,7 @@ export default {
           type: 'success',
           duration: 2500
         })
+        this.firstClick = true
         // this.loading = false
         // this.$parent.$parent.init()
         this.$router.push({ path: this.redirect || '/nested/follow' })

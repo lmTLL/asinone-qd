@@ -46,7 +46,7 @@
         </div>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible5 = false,remark='',upLoadForm.accountImg='',upLoadForm.accountOrder=''">取 消</el-button>
-          <el-button type="primary" @click="doUpload">确 定</el-button>
+          <el-button :disabled="!firstClick" type="primary" @click="doUpload">确 定</el-button>
         </span>
       </el-dialog>
 
@@ -211,6 +211,7 @@ export default {
       dialogVisible3: false,
       dialogVisible1: false,
       dialogVisible5: false,
+      firstClick: true,
       enabledTypeOptions: [
         { key: '0', display_name: '未付款' },
         { key: '1', display_name: '已付款' }
@@ -321,6 +322,7 @@ export default {
       this.remark = ''
     },
     doUpload: function() {
+      this.firstClick = false
       const data = this.$parent.$refs.table.selection
       for (let i = 0; i < data.length; i++) {
         this.upLoadForm.id = data[i].id
@@ -339,6 +341,7 @@ export default {
           this.upLoadForm.id = ''
           this.upLoadForm.accountImg = ''
           this.upLoadForm.accountOrder = ''
+          this.firstClick = true
         }).catch(err => {
           console.log(err.response.data.message)
         })
