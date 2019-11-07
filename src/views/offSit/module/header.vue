@@ -12,6 +12,9 @@
     <el-select v-model="query.type" clearable placeholder="类型" class="filter-item" style="width: 130px;margin-top: 6px" @change="queryInit">
       <el-option v-for="item in queryTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
     </el-select>
+    <el-select v-if="checkPermission(['ADMIN','ZWSALEORDER_SIGNPAYMENT'])" v-model="query.status" clearable placeholder="发帖状态" class="filter-item" style="width: 90px;margin-top: 6px" @change="toQuery">
+      <el-option v-for="item in statusTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+    </el-select>
     <el-select v-if="checkPermission(['ADMIN','ZWSALEORDER_SIGNPAYMENT'])" v-model="query.financePayment" clearable placeholder="付款状态" class="filter-item" style="width: 90px;margin-top: 6px" @change="toQuery">
       <el-option v-for="item in enabledTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
     </el-select>
@@ -215,6 +218,12 @@ export default {
       enabledTypeOptions: [
         { key: '0', display_name: '未付款' },
         { key: '1', display_name: '已付款' }
+      ],
+      statusTypeOptions: [
+        { key: '0', display_name: '未付款' },
+        { key: '1', display_name: '处理中' },
+        { key: '2', display_name: '已发帖' },
+        { key: '3', display_name: '已撤单' }
       ],
       upLoadForm: { id: '', accountImg: '', accountOrder: '' },
       feedbackForm: { id: '', postingEffect: '', effectImgs: [] },

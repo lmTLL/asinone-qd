@@ -1,9 +1,9 @@
 <template>
   <el-row :gutter="40" class="panel-group">
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <router-link to="/nested/menu2"><div class="card-panel">
+      <router-link to="/nested/scpOrder"><div class="card-panel">
         <div class="card-panel-icon-wrapper icon-people">
-          <div class="card-panel-text" style="font-size: 25px;color: #40c9c6">A+自助下单</div>
+          <div class="card-panel-text" style="font-size: 25px;color: #40c9c6">删差评自助下单</div>
           <!---->
         </div>
         <div class="card-panel-description" style="color: #40c9c6">
@@ -21,7 +21,7 @@
           </div>
           <div class="card-panel-description">
             <!--<svg-icon icon-class="ipvisits" class-name="card-panel-icon" />-->
-          <!--<count-to :start-val="0" :end-val="count.newIp" :duration="3" class="card-panel-num"/>-->
+            <!--<count-to :start-val="0" :end-val="count.newIp" :duration="3" class="card-panel-num"/>-->
           </div>
         </div>
       </router-link>
@@ -41,16 +41,18 @@
       </router-link>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel">
-        <div class="card-panel-icon-wrapper icon-shopping">
-          <div class="card-panel-text" style="font-size: 25px">敬请期待</div>
+      <router-link to="/nested/dzOrder">
+        <div class="card-panel">
+          <div class="card-panel-icon-wrapper icon-shopping">
+            <div class="card-panel-text" style="font-size: 25px">点赞自助下单</div>
 
+          </div>
+          <div class="card-panel-description">
+            <!--<svg-icon icon-class="ipvisits" class-name="card-panel-icon" />-->
+            <!--<count-to :start-val="0" :end-val="count.recentIp" :duration="3600" class="card-panel-num"/>-->
+          </div>
         </div>
-        <div class="card-panel-description">
-          <!--<svg-icon icon-class="ipvisits" class-name="card-panel-icon" />-->
-          <!--<count-to :start-val="0" :end-val="count.recentIp" :duration="3600" class="card-panel-num"/>-->
-        </div>
-      </div>
+      </router-link>
     </el-col>
   </el-row>
 </template>

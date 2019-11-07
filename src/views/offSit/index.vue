@@ -132,9 +132,9 @@
           <el-link type="success" target="_blank" title="点击沟通" @click="messageInit(scope.row.zwSaleNumber)">点击沟通</el-link>
         </template>
       </el-table-column>
-      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" prop="zwChannelName" label="渠道"/>
-      <el-table-column prop="invitation" label="所属销售"/>
-      <el-table-column prop="customerNickname" label="客户昵称"/>
+      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])&&!checkPermission(['ZW_CU_INVISIBLE'])" prop="zwChannelName" label="渠道"/>
+      <el-table-column v-if="!checkPermission(['ZW_CU_INVISIBLE'])" prop="invitation" label="所属销售"/>
+      <el-table-column v-if="!checkPermission(['ZW_CU_INVISIBLE'])" prop="customerNickname" label="客户昵称"/>
       <el-table-column prop="site" label="站点"/>
       <!--<el-table-column prop="link" label="asin"/>-->
       <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" prop="link" label="asin" width="130px">
@@ -147,7 +147,7 @@
       <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" :show-overflow-tooltip="true" prop="dealPrice" label="Deal price" width="100px"/>
       <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" :show-overflow-tooltip="true" prop="originalPrice" label="Original price" width="115px"/>
       <el-table-column prop="code" label="code" width="100px"/>
-      <el-table-column v-if="!checkPermission(['ZW_INVISIBLE'])" prop="codeWork" label="codeWork" width="260px"/>
+      <el-table-column prop="codeWork" label="codeWork" width="260px"/>
       <el-table-column :show-overflow-tooltip="true" prop="discount" label="Discount"/>
       <el-table-column prop="startDate" label="开始时间" width="100px"/>
       <el-table-column prop="estimatedTime" label="预计发帖时间" width="110px"/>
@@ -222,7 +222,7 @@
               icon="el-icon-document-copy"
               @click="copyText(scope.row,$event)"></el-button>
           </el-tooltip>
-          <edit v-permission="['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_EDIT']" :data="scope.row" :sup_this="sup_this"/>
+          <edit v-permission="['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_EDIT']" v-if="scope.row.status!=='2'" :data="scope.row" :sup_this="sup_this"/>
           <el-popover
             v-permission="['ADMIN','ZWSALEORDER_ALL','ZWSALEORDER_DELETE']"
             :ref="scope.row.id"
@@ -416,8 +416,10 @@ export default {
       const type = query.type
       const value = query.value
       const financePayment = query.financePayment
+      const status = query.status
       if (type && value) { this.params[type] = value }
       if (financePayment !== '' && financePayment !== null) { this.params['financePayment'] = financePayment }
+      if (status !== '' && status !== null) { this.params['status'] = status }
       return true
     },
     messageInit(zwSaleNumber) {
@@ -451,7 +453,8 @@ export default {
       })
     },
     copyText(row, event) {
-      const Url2 = 'WeChat nickname : ' + row.invitation + '-' + row.customerNickname + ' \n' +
+      const Url2 = '订单号 : ' + row.zwSaleNumber + ' \n' +
+        'WeChat nickname : ' + row.invitation + '-' + row.customerNickname + ' \n' +
         'Deal站 : ' + row.dealSite + ' \n' +
         'Product name : ' + row.productName + ' \n' +
         'Link : ' + row.link + ' \n' +

@@ -6,6 +6,8 @@ const api = {
     // 图片上传
     imagesUploadApi: baseUrl + '/api/pictures',
     excelUploadApi: baseUrl + '/api/saleOrder/excelSaleOrder',
+    scpExcelUploadApi: baseUrl + '/api/scpSaleOrder/excelScpSaleOrder',
+    dzExcelUploadApi: baseUrl + '/api/dzSaleOrder/excelDzSaleOrder',
     // 修改头像
     updateAvatarApi: baseUrl + '/api/users/updateAvatar',
     // 上传文件到七牛云
